@@ -1299,6 +1299,46 @@ _PROFILES: dict[str, DemographicProfile] = {
         tags=["high_welfare", "progressive", "immigration_debate", "digital_leader"],
         notes="Eurostat 2022. PG routing via _SWEDEN_GENERAL_POOL (domain pool key).",
     ),
+
+    "united_arab_emirates": DemographicProfile(
+        state="United Arab Emirates",
+        state_code="united_arab_emirates",
+        pg_location="United Arab Emirates",
+        population_m=9.9,
+        urban_pct=0.870,
+        median_age=33.0,
+        literacy_rate=0.977,
+        income_bands={"low": 0.15, "middle": 0.45, "high": 0.40},
+        religious_composition={
+            "muslim": 0.76, "christian": 0.09, "hindu": 0.10, "other": 0.05,
+        },
+        primary_language="Arabic",
+        languages=["English", "Hindi", "Urdu", "Tagalog", "Mandarin"],
+        region="middle_east",
+        supports_religion_stratification=False,
+        tags=["expat_majority", "high_income", "multicultural", "muslim_majority", "tech_hub"],
+        notes="UAE Federal Competitiveness and Statistics Centre 2023. ~89% expat population. PG routing via _UAE_GENERAL_POOL (domain pool key).",
+    ),
+
+    "saudi_arabia": DemographicProfile(
+        state="Saudi Arabia",
+        state_code="saudi_arabia",
+        pg_location="Saudi Arabia",
+        population_m=36.4,
+        urban_pct=0.840,
+        median_age=30.0,
+        literacy_rate=0.979,
+        income_bands={"low": 0.20, "middle": 0.50, "high": 0.30},
+        religious_composition={
+            "muslim": 0.97, "christian": 0.02, "other": 0.01,
+        },
+        primary_language="Arabic",
+        languages=["English", "Tagalog", "Urdu", "Bengali", "Hindi"],
+        region="middle_east",
+        supports_religion_stratification=True,
+        tags=["vision_2030", "oil_economy", "young_population", "muslim_majority", "giga_projects"],
+        notes="GASTAT 2022. ~38% expat population. Sunni/Shia split ~85/15 among Muslims. PG routing via _SAUDI_GENERAL_POOL (domain pool key).",
+    ),
 }
 
 
@@ -1415,6 +1455,14 @@ def get_profile(state: str) -> DemographicProfile:
         "britain": "united_kingdom",
         "england": "united_kingdom",
         "great_britain": "united_kingdom",
+        # Middle East aliases
+        "uae": "united_arab_emirates",
+        "dubai": "united_arab_emirates",
+        "abu_dhabi": "united_arab_emirates",
+        "emirates": "united_arab_emirates",
+        "ksa": "saudi_arabia",
+        "saudi": "saudi_arabia",
+        "riyadh": "saudi_arabia",
         # EU aliases
         "de": "germany",
         "fr": "france",
@@ -1430,7 +1478,7 @@ def get_profile(state: str) -> DemographicProfile:
     raise KeyError(
         f"No demographic profile found for '{state}'. "
         f"Available: {', '.join(sorted(_PROFILES))}. "
-        f"Common aliases: us, usa, uk, de, fr, es, it, nl, pl, se, "
+        f"Common aliases: us, usa, uk, uae, ksa, de, fr, es, it, nl, pl, se, "
         f"wb, up, tn, dl, ind."
     )
 
