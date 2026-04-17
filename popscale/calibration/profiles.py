@@ -277,7 +277,7 @@ _PROFILES: dict[str, DemographicProfile] = {
     "delhi": DemographicProfile(
         state="Delhi (NCT)",
         state_code="delhi",
-        pg_location="India",
+        pg_location="Delhi",
         population_m=32.0,
         urban_pct=0.975,
         median_age=28.0,
