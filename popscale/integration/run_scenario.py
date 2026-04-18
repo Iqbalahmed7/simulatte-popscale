@@ -178,28 +178,64 @@ def _fallback_response(
 ) -> PopulationResponse:
     """Construct a minimal valid response when the cognitive loop fails.
 
-    Uses the persona's risk_appetite as a prior to pick a plausible decision.
+    For POLITICAL domain: uses political_lean as the vote prior (conservative/
+    lean_conservative → first option, lean_progressive/progressive → last option,
+    moderate → 50/50 split via persona_id hash). Falls back to risk_appetite if
+    political_lean unavailable.
+
+    For other domains: uses risk_appetite (high → first option, low → last).
+
     Not accurate — but valid, so it never silently drops a persona from the
     population batch.
     """
     from ..domain.framing import _estimate_prior, SEGMENT_LABELS
     from ..schema.population_response import DomainSignals, _extract_domain_signals
+    from ..scenario.model import SimulationDomain as _SD
 
     anchor = persona.demographic_anchor
     di = persona.derived_insights
     bt = persona.behavioural_tendencies
 
     prior = _estimate_prior(persona)
+
+    # Fix: for POLITICAL domain, use political_lean as the prior signal instead of
+    # risk_appetite. risk_appetite maps most US personas to "medium" → options[1]
+    # (Harris for binary US election), producing a systematic Harris fallback bias.
+    # political_lean gives a more accurate proxy for vote intent.
+    if scenario.domain == _SD.POLITICAL:
+        try:
+            from src.memory.core_memory import _get_political_lean
+            lean = _get_political_lean(persona)
+            _lean_prior_map = {
+                "conservative":      "high",
+                "lean_conservative": "high",
+                "moderate":          "medium",
+                "lean_progressive":  "low",
+                "progressive":       "low",
+            }
+            if lean and lean in _lean_prior_map:
+                prior = _lean_prior_map[lean]
+        except Exception:
+            pass  # keep risk_appetite-based prior if PG unavailable
+
     confidence_map = {"high": 0.55, "medium": 0.4, "low": 0.3}
     confidence = confidence_map[prior]
 
     if scenario.options:
-        decision_map = {
-            "high":   scenario.options[0],
-            "medium": scenario.options[len(scenario.options) // 2],
-            "low":    scenario.options[-1],
-        }
-        decision = decision_map[prior]
+        # For 2-option binary scenarios, options[len//2] = options[1] which is
+        # the LAST option (not the middle). "medium" prior would always pick the
+        # second option — for US 2024 elections that means Harris for all moderates.
+        # Fix: for binary lists, use hash(persona_id) % 2 to split ~50/50.
+        if len(scenario.options) == 2 and prior == "medium":
+            idx = hash(persona.persona_id) % 2
+            decision = scenario.options[idx]
+        else:
+            decision_map = {
+                "high":   scenario.options[0],
+                "medium": scenario.options[len(scenario.options) // 2],
+                "low":    scenario.options[-1],
+            }
+            decision = decision_map[prior]
     else:
         decision_map = {
             "high":   "generally supportive",
