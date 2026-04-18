@@ -13,7 +13,14 @@ jobs:
     name: Trigger Railway engine redeploy
     runs-on: ubuntu-latest
     steps:
-      - name: POST to Railway deploy webhook
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Trigger redeploy via Railway CLI
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
-          curl -fsSL -X POST "${{ secrets.RAILWAY_ENGINE_DEPLOY_WEBHOOK }}"
+          railway redeploy \
+            --service 1c0269f8-b2d8-464e-9372-d78586fff930 \
+            --yes
           echo "Railway redeploy triggered for simulatte-engine"
