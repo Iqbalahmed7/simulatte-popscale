@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "simulatte-popscale"
+version = "0.1.0"
+description = "PopScale demographic simulation engine for Simulatte"
+requires-python = ">=3.11"
+dependencies = [
+    "anthropic>=0.88.0",
+    "pydantic>=2.12.5",
+    "numpy>=2.0.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["popscale*"]

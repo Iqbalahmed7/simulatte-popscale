@@ -1,0 +1,19 @@
+name: Redeploy Simulatte Engine
+
+# Automatically trigger a Railway redeploy of simulatte-engine
+# whenever code is pushed to main. The engine installs this package
+# via pip from GitHub, so a redeploy picks up the latest commit.
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  redeploy:
+    name: Trigger Railway engine redeploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: POST to Railway deploy webhook
+        run: |
+          curl -fsSL -X POST "${{ secrets.RAILWAY_ENGINE_DEPLOY_WEBHOOK }}"
+          echo "Railway redeploy triggered for simulatte-engine"
