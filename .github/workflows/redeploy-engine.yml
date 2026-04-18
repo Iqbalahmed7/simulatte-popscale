@@ -13,14 +13,10 @@ jobs:
     name: Trigger Railway engine redeploy
     runs-on: ubuntu-latest
     steps:
-      - name: Install Railway CLI
-        run: npm install -g @railway/cli
-
-      - name: Trigger redeploy via Railway CLI
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      - name: Trigger Railway engine redeploy via API
         run: |
-          railway redeploy \
-            --service 1c0269f8-b2d8-464e-9372-d78586fff930 \
-            --yes
+          curl -fsSL -X POST https://backboard.railway.app/graphql/v2 \
+            -H "Authorization: Bearer ${{ secrets.RAILWAY_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{"query":"mutation{serviceInstanceRedeploy(serviceId:\"1c0269f8-b2d8-464e-9372-d78586fff930\",environmentId:\"11c001b9-0724-485f-b6c9-24f6c6f108fd\")}"}'
           echo "Railway redeploy triggered for simulatte-engine"
