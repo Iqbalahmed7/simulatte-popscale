@@ -1111,6 +1111,33 @@ _PROFILES: dict[str, DemographicProfile] = {
     ),
 
 
+    # ── Wisconsin ─────────────────────────────────────────────────────────────
+    "wisconsin": DemographicProfile(
+        state="Wisconsin",
+        state_code="wisconsin",
+        pg_location="United States",
+        population_m=5.9,
+        urban_pct=0.700,
+        median_age=39.4,
+        literacy_rate=0.991,
+        income_bands={"low": 0.28, "middle": 0.52, "high": 0.20},
+        religious_composition={
+            "protestant": 0.41, "catholic": 0.25, "unaffiliated": 0.27,
+            "muslim": 0.01, "jewish": 0.01, "other": 0.05,
+        },
+        primary_language="English",
+        languages=["Spanish", "Hmong", "Somali", "German"],
+        region="us_midwest",
+        supports_religion_stratification=False,
+        tags=["swing_state", "dairy_state", "manufacturing", "madison_liberal", "rural_conservative", "rust_belt"],
+        notes=(
+            "US Census 2020/2022 ACS. Classic swing state: Madison (Dane Co.) heavily Democratic, "
+            "Milwaukee mixed, rural western/northern WI strongly Republican. "
+            "2024 presidential: Trump 49.9%, Harris 48.8% (+1.1pp Trump margin)."
+        ),
+    ),
+
+
     # ══════════════════════════════════════════════════════════════════════════
     # UK PROFILE
     # pg_location="United Kingdom" → PG routes to _UK_GENERAL_POOL
