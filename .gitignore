@@ -14,4 +14,6 @@ build/
 *.pptx
 *.docx
 data/
-benchmarks/
+# Ignore benchmark result outputs but track Python source files
+benchmarks/*/results/
+benchmarks/**/*.json
