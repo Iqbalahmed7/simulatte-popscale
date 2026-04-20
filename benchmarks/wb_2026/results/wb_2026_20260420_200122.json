@@ -1,0 +1,22 @@
+{
+  "run_id": "20260420_200122",
+  "n_personas": 80,
+  "vote_shares": {
+    "TMC": 0.5625,
+    "BJP": 0.375,
+    "Left-Congress": 0.0625,
+    "Others": 0.0
+  },
+  "ground_truth_2021": {
+    "TMC": 0.479,
+    "BJP": 0.381,
+    "Left-Congress": 0.097,
+    "Others": 0.043
+  },
+  "poll_averages_2026": {
+    "TMC": 0.43,
+    "BJP": 0.41,
+    "Left-Congress": 0.1,
+    "Others": 0.06
+  }
+}
