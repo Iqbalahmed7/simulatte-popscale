@@ -207,44 +207,56 @@ def _fallback_response(
             from src.memory.core_memory import _get_political_lean
             lean = _get_political_lean(persona)
             _lean_prior_map = {
+                # US archetypes
                 "conservative":      "high",
                 "lean_conservative": "high",
                 "moderate":          "medium",
                 "lean_progressive":  "low",
                 "progressive":       "low",
+                # India/Bengal archetypes
+                "bjp_supporter":     "high",
+                "bjp_lean":          "high",
+                "neutral":           "medium",
+                "opposition_lean":   "low",
+                "opposition":        "low",
+                "left_lean":         "third",   # maps to 3rd option (Left-Congress)
             }
             if lean and lean in _lean_prior_map:
                 prior = _lean_prior_map[lean]
         except Exception:
             pass  # keep risk_appetite-based prior if PG unavailable
 
-    confidence_map = {"high": 0.55, "medium": 0.4, "low": 0.3}
-    confidence = confidence_map[prior]
+    confidence_map = {"high": 0.55, "medium": 0.4, "low": 0.3, "third": 0.5}
+    confidence = confidence_map.get(prior, 0.4)
 
     if scenario.options:
-        # For 2-option binary scenarios, options[len//2] = options[1] which is
-        # the LAST option (not the middle). "medium" prior would always pick the
-        # second option — for US 2024 elections that means Harris for all moderates.
-        # Fix: for binary lists, use hash(persona_id) % 2 to split ~50/50.
         if len(scenario.options) == 2 and prior == "medium":
+            # Binary scenarios: split moderates ~50/50 by persona_id hash
             idx = hash(persona.persona_id) % 2
             decision = scenario.options[idx]
+        elif prior == "third" and len(scenario.options) >= 3:
+            # left_lean → always 3rd option (index 2 = Left-Congress in Bengal)
+            decision = scenario.options[2]
         else:
             decision_map = {
                 "high":   scenario.options[0],
                 "medium": scenario.options[len(scenario.options) // 2],
                 "low":    scenario.options[-1],
+                "third":  scenario.options[min(2, len(scenario.options) - 1)],
             }
-            decision = decision_map[prior]
+            decision = decision_map.get(prior, scenario.options[len(scenario.options) // 2])
     else:
         decision_map = {
             "high":   "generally supportive",
             "medium": "uncertain / no clear position",
             "low":    "skeptical / cautious",
+            "third":  "leaning towards a third alternative",
         }
-        decision = decision_map[prior]
+        decision = decision_map.get(prior, "uncertain / no clear position")
 
-    segment_label = SEGMENT_LABELS[scenario.domain][prior]
+    # SEGMENT_LABELS only has high/medium/low — map "third" to "medium" for display
+    segment_prior_key = prior if prior in ("high", "medium", "low") else "medium"
+    segment_label = SEGMENT_LABELS[scenario.domain][segment_prior_key]
     domain_signals = _extract_domain_signals(persona, scenario.domain)
 
     logger.warning(

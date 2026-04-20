@@ -163,6 +163,16 @@ _TRUST_DESCRIPTORS: dict[SimulationDomain, dict[str, str]] = {
 }
 
 
+_POLITICAL_LEAN_FRAMING: dict[str, str] = {
+    "opposition":      "You are a committed TMC/Trinamool Congress supporter — you see the party as the protector of Bengal's identity and secular fabric.",
+    "opposition_lean": "You lean towards TMC/Trinamool Congress — you broadly support the incumbent government, though you have some reservations.",
+    "bjp_supporter":   "You are a firm BJP supporter — you believe in Hindu consolidation and Modi's national leadership, and see TMC as corrupt.",
+    "bjp_lean":        "You lean BJP — you're drawn to the BJP's Hindu nationalist platform and are frustrated with TMC's governance failures.",
+    "left_lean":       "Your political identity is rooted in the Left-Congress alliance — you oppose both TMC's syndicate politics and BJP's communal agenda. You would vote Left-Congress or a third alternative before either main party.",
+    "neutral":         "You are a genuine swing voter — you have no firm party loyalty and will decide based on local candidate quality and immediate issues.",
+}
+
+
 def frame_persona_for_domain(persona: PersonaRecord, domain: SimulationDomain) -> str:
     """Generate a domain-specific behavioral framing block for a PersonaRecord.
 
@@ -196,6 +206,24 @@ def frame_persona_for_domain(persona: PersonaRecord, domain: SimulationDomain) -
     }
     style_desc = style_map.get(di.decision_style, di.decision_style)
 
+    # For POLITICAL domain: inject explicit political lean so the LLM doesn't
+    # have to infer it from demographic signals alone. This anchors left_lean
+    # personas to Left-Congress and prevents them from defaulting to TMC/BJP.
+    political_lean_sentence = ""
+    if domain == SimulationDomain.POLITICAL:
+        try:
+            import sys
+            from pathlib import Path
+            _pg = Path(__file__).parents[3] / "Persona Generator"
+            if str(_pg) not in sys.path:
+                sys.path.insert(0, str(_pg))
+            from src.memory.core_memory import _get_political_lean  # noqa: E402
+            lean = _get_political_lean(persona)
+            if lean and lean in _POLITICAL_LEAN_FRAMING:
+                political_lean_sentence = " " + _POLITICAL_LEAN_FRAMING[lean]
+        except Exception:
+            pass  # silently skip if PG unavailable
+
     return (
         f"\n[DOMAIN FRAMING — {domain.value.upper()}]\n"
         f"In this context, you are {risk_desc}. "
@@ -204,6 +232,7 @@ def frame_persona_for_domain(persona: PersonaRecord, domain: SimulationDomain) -
         f"When making decisions, {style_desc}. "
         f"Based on your profile, you start as a '{segment_label}' — "
         f"but the specifics of this scenario may shift that."
+        f"{political_lean_sentence}"
     )
 
 
