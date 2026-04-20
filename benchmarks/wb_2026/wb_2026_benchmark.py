@@ -88,19 +88,16 @@ ACTUAL_VOTE_SHARES_2021: dict[str, float] = {
     "Others":       0.043,
 }
 
-# 2026 pre-election poll averages — scraped consensus from real April 2026 polls.
-# Sources: VoteVibe-CNN-News18 (TMC 41.9%, BJP 34.9%),
-#          Matrize/ABP News (TMC 43%, BJP 41%, Others 16%),
-#          Matrix-IANS (TMC 43-45%, BJP 41-43%).
-# Key new signals vs prior: SIR voter-roll deletions hitting TMC strongholds
-# (91 lakh names removed, concentrated in Murshidabad/Malda/N24Pgs/Nadia);
-# Matua CAA disillusionment (70% Matua families touched by SIR deletions);
-# AIMIM-AJUP alliance fragmenting Muslim vote in dense Muslim constituencies.
+# 2026 pre-election poll averages — consensus from verified April 2026 polls.
+# Sources: IANS-Matrize (Apr 2026, TMC 43-45%, BJP 41-43%, most cited);
+#          ABP-Ananda / India TV News (TMC ~41.9%, BJP ~34.9%, older);
+#          Eurasia Review analysis (20 Apr 2026): TMC holds edge, BJP resurgent.
+# LOCKED: These averages are fixed before results. Do not update post-election.
 POLL_AVERAGES_2026: dict[str, float] = {
-    "TMC":           0.430,  # Consensus midpoint ~43%; welfare incumbency holds
-    "BJP":           0.390,  # Consensus midpoint ~37-41%; SIR Matua jitters cap upside
-    "Left-Congress": 0.120,  # Holding ~12% — Congress Murshidabad base + CPM remnants
-    "Others":        0.060,  # AIMIM-AJUP + independents; fragments Muslim vote
+    "TMC":           0.430,  # IANS-Matrize consensus; welfare schemes hold rural base
+    "BJP":           0.410,  # Updated to 41% — IANS-Matrize Apr 2026 upper bound
+    "Left-Congress": 0.100,  # Weakened vs 2021; Congress Murshidabad + CPM remnants
+    "Others":        0.060,  # AIMIM-AJUP alliance + independents
 }
 
 SCENARIO_OPTIONS = [

@@ -68,6 +68,23 @@ from ..schema.social_simulation_result import SocialSimulationResult
 
 _pg_loaded: bool = False
 
+# ── Stub types (used when PG is not available) ────────────────────────────────
+# These keep `from popscale.social.social_runner import SocialSimulationLevel`
+# working at import time even when PG is absent (e.g. Railway engine container).
+# They are replaced by the real PG enums at the bottom of this module.
+
+import enum as _enum
+
+class SocialSimulationLevel(_enum.Enum):  # noqa: E302
+    ISOLATED  = "isolated"
+    LOW       = "low"
+    MODERATE  = "moderate"
+    HIGH      = "high"
+    SATURATED = "saturated"
+
+class SocialNetwork:  # noqa: E302  # stub — replaced by PG version when available
+    pass
+
 
 def _ensure_pg() -> None:
     """Resolve PG's src/ package onto sys.path.

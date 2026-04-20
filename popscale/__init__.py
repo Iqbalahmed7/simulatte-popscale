@@ -83,7 +83,10 @@ from .environment import (
 )
 from .scenario.events import EventCategory, EventTimeline, SimulationEvent
 from .scenario.model import Scenario, SimulationDomain
-from .social.social_runner import SocialSimulationLevel
+try:
+    from .social.social_runner import SocialSimulationLevel
+except ImportError:
+    SocialSimulationLevel = None  # type: ignore[assignment,misc]  # PG not available
 from .study.persistence import list_saved_runs, save_study_result
 from .study.study_runner import (
     BudgetExceededError,
