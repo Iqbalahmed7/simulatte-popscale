@@ -48,30 +48,119 @@ Usage::
 from __future__ import annotations
 
 import logging
+import sys
 import uuid
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any, Optional
 
 logger = logging.getLogger(__name__)
 
-from src.social.loop_orchestrator import run_social_loop          # noqa: E402
-from src.social.network_builder import (                          # noqa: E402
-    build_directed_graph,
-    build_full_mesh,
-    build_random_encounter,
-)
-from src.social.schema import (                                   # noqa: E402
-    SocialNetwork,
-    SocialSimulationLevel,
-)
-from src.experiment.session import SimulationTier                 # noqa: E402
-from src.schema.persona import PersonaRecord                      # noqa: E402
+# ── PopScale imports ───────────────────────────────────────────────────────────
+from ..scenario.model import Scenario
+from ..schema.social_simulation_result import SocialSimulationResult
 
-# ── PopScale imports ──────────────────────────────────────────────────────────
-from ..scenario.model import Scenario                             # noqa: E402
-from ..schema.social_simulation_result import SocialSimulationResult  # noqa: E402
+# ── PG availability ────────────────────────────────────────────────────────────
+# PG (Persona Generator) lives in a separate repo/package.  When running inside
+# the simulatte-engine on Railway, PG is not installed — and that's fine because
+# most population builds never call run_social_scenario().  All PG imports are
+# deferred to _ensure_pg() so the module loads cleanly in all environments.
 
-# Re-export PG primitives for caller convenience
+_pg_loaded: bool = False
+
+
+def _ensure_pg() -> None:
+    """Resolve PG's src/ package onto sys.path.
+
+    Called lazily the first time any social-simulation function is invoked.
+    Tries two locations in order:
+      1. $PG_ROOT env-var — production override.  Set this on Railway if PG is
+         cloned to a known path, e.g. PG_ROOT=/app/persona_generator
+      2. Sibling "Persona Generator" directory relative to this file's repo
+         root — works in local mono-repo development.
+
+    Raises RuntimeError if PG cannot be found or imported.
+    """
+    global _pg_loaded
+    if _pg_loaded:
+        return
+
+    import os
+
+    # Option 1: explicit env-var (production)
+    pg_root_env = os.environ.get("PG_ROOT")
+    candidate: Optional[Path] = Path(pg_root_env) if pg_root_env else None
+
+    # Option 2: sibling directory (local dev)
+    if candidate is None or not candidate.exists():
+        candidate = Path(__file__).parents[3] / "Persona Generator"
+
+    if not candidate.exists():
+        raise RuntimeError(
+            "Persona Generator (PG) is not available in this environment. "
+            "Social simulation requires PG. "
+            "Set PG_ROOT=/path/to/persona-generator or install simulatte-persona-generator."
+        )
+
+    pg_root_str = str(candidate)
+    if pg_root_str not in sys.path:
+        sys.path.insert(0, pg_root_str)
+
+    # Verify the import actually works
+    try:
+        import src.social.loop_orchestrator  # noqa: F401
+    except ModuleNotFoundError as exc:
+        raise RuntimeError(
+            f"PG root found at {pg_root_str} but src.social is not importable: {exc}"
+        ) from exc
+
+    _pg_loaded = True
+    logger.debug("PG loaded from %s", pg_root_str)
+
+
+# ── Re-exported network builders (lazy) ───────────────────────────────────────
+
+def build_full_mesh(persona_ids: list[str]) -> Any:
+    """Build a fully-connected social network. Requires PG."""
+    _ensure_pg()
+    from src.social.network_builder import build_full_mesh as _build_full_mesh
+    return _build_full_mesh(persona_ids)
+
+
+def build_random_encounter(
+    persona_ids: list[str],
+    k: int = 3,
+    seed: Optional[int] = None,
+) -> Any:
+    """Build a random k-regular encounter network. Requires PG."""
+    _ensure_pg()
+    from src.social.network_builder import build_random_encounter as _build_random_encounter
+    return _build_random_encounter(persona_ids, k=k, seed=seed)
+
+
+def build_directed_graph(edges: list[tuple[str, str]]) -> Any:
+    """Build a directed influence graph from explicit edge pairs. Requires PG."""
+    _ensure_pg()
+    from src.social.network_builder import build_directed_graph as _build_directed_graph
+    return _build_directed_graph(edges)
+
+
+# SocialSimulationLevel and SocialNetwork are exposed as lazy properties
+# so callers can do:  from popscale.social.social_runner import SocialSimulationLevel
+# This is only safe to access after _ensure_pg() has run (or after import succeeds).
+
+def _get_social_level_cls() -> Any:
+    _ensure_pg()
+    from src.social.schema import SocialSimulationLevel
+    return SocialSimulationLevel
+
+
+def _get_social_network_cls() -> Any:
+    _ensure_pg()
+    from src.social.schema import SocialNetwork
+    return SocialNetwork
+
+
 __all__ = [
     "run_social_scenario",
     "build_full_mesh",
@@ -84,12 +173,12 @@ __all__ = [
 
 async def run_social_scenario(
     scenario: Scenario,
-    personas: list[PersonaRecord],
+    personas: list[Any],
     stimuli: list[str],
-    network: SocialNetwork,
-    level: SocialSimulationLevel,
+    network: Any,
+    level: Any,
     *,
-    tier: SimulationTier = SimulationTier.DEEP,
+    tier: Any = None,
     run_id: Optional[str] = None,
     session_id: Optional[str] = None,
     cohort_id: Optional[str] = None,
@@ -105,6 +194,7 @@ async def run_social_scenario(
         network:     SocialNetwork defining who can influence whom.
         level:       SocialSimulationLevel controlling interaction density.
         tier:        Simulation tier (DEEP recommended; VOLUME for cheap runs).
+                     Defaults to SimulationTier.DEEP if not provided.
         run_id:      Optional PopScale run identifier. Auto-generated if None.
         session_id:  Optional PG session ID. Auto-generated if None.
         cohort_id:   Optional PG cohort ID. Auto-generated if None.
@@ -115,7 +205,18 @@ async def run_social_scenario(
 
     Raises:
         ValueError: If personas list is empty or stimuli list is empty.
+        RuntimeError: If PG is not available in this environment.
     """
+    # Resolve PG imports (raises RuntimeError if PG is unavailable)
+    _ensure_pg()
+
+    from src.social.loop_orchestrator import run_social_loop
+    from src.experiment.session import SimulationTier
+    from src.schema.persona import PersonaRecord  # noqa: F401 — used for runtime validation
+
+    if tier is None:
+        tier = SimulationTier.DEEP
+
     if not personas:
         raise ValueError("personas list is empty — nothing to simulate.")
     if not stimuli:
