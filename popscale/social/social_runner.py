@@ -48,18 +48,11 @@ Usage::
 from __future__ import annotations
 
 import logging
-import sys
 import uuid
 from datetime import datetime, timezone
-from pathlib import Path
 from typing import Any, Optional
 
 logger = logging.getLogger(__name__)
-
-# ── PG path setup ─────────────────────────────────────────────────────────────
-_PG_ROOT = Path(__file__).parents[3] / "Persona Generator"
-if str(_PG_ROOT) not in sys.path:
-    sys.path.insert(0, str(_PG_ROOT))
 
 from src.social.loop_orchestrator import run_social_loop          # noqa: E402
 from src.social.network_builder import (                          # noqa: E402
