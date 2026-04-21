@@ -224,7 +224,7 @@ async def run_calibrated_generation(
 
             brief = PersonaGenerationBrief(
                 client=spec.client,
-                domain=spec.domain,
+                domain=segment.domain,  # Use cluster-specific domain, not global spec.domain
                 business_problem=spec.business_problem,
                 count=batch_count,
                 anchor_overrides=overrides_with_offset,

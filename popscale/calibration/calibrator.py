@@ -52,6 +52,8 @@ class PersonaSegment:
 
     Attributes:
         count:            Number of personas to generate in this segment.
+        domain:           PG domain key for persona pool (e.g. "bengal_jungle_mahal").
+                          Defaults to "general" if not specified.
         anchor_overrides: Dict to pass as `anchor_overrides` in PG brief.
         label:            Human-readable description (e.g. "Hindu, middle income").
         proportion:       This segment's share of the total population (0–1).
@@ -59,6 +61,7 @@ class PersonaSegment:
     count: int
     anchor_overrides: dict
     label: str
+    domain: str = "general"
     proportion: float = 0.0
 
 
@@ -103,6 +106,7 @@ def calibrate(spec: PopulationSpec) -> list[PersonaSegment]:
     else:
         segments = [PersonaSegment(
             count=spec.n_personas,
+            domain=spec.domain,
             anchor_overrides=base_overrides,
             label=f"{profile.state} — general population",
             proportion=1.0,
