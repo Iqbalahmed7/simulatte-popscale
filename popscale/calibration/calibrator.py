@@ -288,6 +288,8 @@ def _merge_tiny(
     """Merge segments below min_size into an 'Other' remainder bucket."""
     keep: list[PersonaSegment]   = []
     absorbed_count = 0
+    # Use domain from first segment (all should have same domain)
+    domain = segments[0].domain if segments else "general"
 
     for seg in segments:
         if seg.count >= min_size:
@@ -298,6 +300,7 @@ def _merge_tiny(
     if absorbed_count > 0:
         keep.append(PersonaSegment(
             count=absorbed_count,
+            domain=domain,
             anchor_overrides=base_overrides,
             label=f"Other — {profile.state}",
             proportion=round(absorbed_count / max(sum(s.count for s in segments), 1), 4),
@@ -326,6 +329,7 @@ def _fix_rounding(
     largest_idx = max(range(len(segments)), key=lambda i: segments[i].count)
     segments[largest_idx] = PersonaSegment(
         count=max(segments[largest_idx].count + diff, 1),
+        domain=segments[largest_idx].domain,
         anchor_overrides=segments[largest_idx].anchor_overrides,
         label=segments[largest_idx].label,
         proportion=segments[largest_idx].proportion,

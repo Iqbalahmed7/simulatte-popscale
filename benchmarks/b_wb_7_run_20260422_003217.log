@@ -1,0 +1,210 @@
+00:32:18  INFO      wb_2026_constituency  Starting WB 2026 constituency run | id=20260421_190218 | clusters=10 | total_personas=440
+00:32:18  INFO      wb_2026_constituency  Running cluster: Murshidabad Muslim Heartland (40 personas, 22 seats)
+00:32:18  INFO      niobe.runner  run_niobe_study | NiobeStudyRequest('WB 2026 Constituency — Murshidabad Muslim Heartland', state=west bengal, n=40, domain=bengal_murshidabad)
+00:32:18  INFO      popscale.study.study_runner  run_study | run=st-803a8795 | state=west bengal | n=40 | scenario=Which party will you vote for in the upcoming West Bengal as
+00:32:18  INFO      popscale.study.study_runner    Budget check: estimated $4.00 vs cap $20.00
+00:32:18  INFO      popscale.study.study_runner    Phase 1: generating 40 personas…
+00:32:18  INFO      popscale.generation.calibrated_generator  run_calibrated_generation | run=st-803a8795-gen | state=west bengal | n=40 | segments=3 | tier=volume
+00:32:18  INFO      popscale.generation.calibrated_generator    segment 1/3 — Hindu (28 personas)…
+00:32:18  INFO      popscale.generation.calibrated_generator      sub-batch 1/3 — 10 personas (prefix=niobe-s0-b0)…
+[streaming_writer] Started fresh run — cohort_id=cohort-bengal_murshidabad-323316, staging=/tmp/simulatte_cohorts/.stream_cohort-bengal_murshidabad-323316
+00:32:18  ERROR     popscale.generation.calibrated_generator    segment 0 sub-batch 0 failed — skipping (SyntaxError: unmatched ')' (demographic_sampler.py, line 1977))
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/PopScale/popscale/generation/calibrated_generator.py", line 247, in _run_segment
+    pg_result = await asyncio.wait_for(
+                ^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/tasks.py", line 488, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/orchestrator/invoke.py", line 197, in invoke_persona_generator
+    raw_envelope = await _run_generation(
+                   ^^^^^^^^^^^^^^^^^^^^^^
+    ...<11 lines>...
+    )
+    ^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 134, in _run_generation
+    from src.generation.demographic_sampler import sample_demographic_anchor
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1977
+    )
+    ^
+SyntaxError: unmatched ')'
+
+00:32:18  INFO      popscale.generation.calibrated_generator      sub-batch 2/3 — 10 personas (prefix=niobe-s0-b1)…
+[streaming_writer] Started fresh run — cohort_id=cohort-bengal_murshidabad-a2af88, staging=/tmp/simulatte_cohorts/.stream_cohort-bengal_murshidabad-a2af88
+00:32:18  ERROR     popscale.generation.calibrated_generator    segment 0 sub-batch 1 failed — skipping (SyntaxError: unmatched ')' (demographic_sampler.py, line 1977))
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/PopScale/popscale/generation/calibrated_generator.py", line 247, in _run_segment
+    pg_result = await asyncio.wait_for(
+                ^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/tasks.py", line 488, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/orchestrator/invoke.py", line 197, in invoke_persona_generator
+    raw_envelope = await _run_generation(
+                   ^^^^^^^^^^^^^^^^^^^^^^
+    ...<11 lines>...
+    )
+    ^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 134, in _run_generation
+    from src.generation.demographic_sampler import sample_demographic_anchor
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1977
+    )
+    ^
+SyntaxError: unmatched ')'
+
+00:32:18  INFO      popscale.generation.calibrated_generator      sub-batch 3/3 — 8 personas (prefix=niobe-s0-b2)…
+[streaming_writer] Started fresh run — cohort_id=cohort-bengal_murshidabad-6fe669, staging=/tmp/simulatte_cohorts/.stream_cohort-bengal_murshidabad-6fe669
+00:32:18  ERROR     popscale.generation.calibrated_generator    segment 0 sub-batch 2 failed — skipping (SyntaxError: unmatched ')' (demographic_sampler.py, line 1977))
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/PopScale/popscale/generation/calibrated_generator.py", line 247, in _run_segment
+    pg_result = await asyncio.wait_for(
+                ^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/tasks.py", line 488, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/orchestrator/invoke.py", line 197, in invoke_persona_generator
+    raw_envelope = await _run_generation(
+                   ^^^^^^^^^^^^^^^^^^^^^^
+    ...<11 lines>...
+    )
+    ^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 134, in _run_generation
+    from src.generation.demographic_sampler import sample_demographic_anchor
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1977
+    )
+    ^
+SyntaxError: unmatched ')'
+
+00:32:18  INFO      popscale.generation.calibrated_generator    segment 1/3 done — 0 personas, $0.0000
+00:32:18  INFO      popscale.generation.calibrated_generator    segment 2/3 — Muslim (11 personas)…
+00:32:18  INFO      popscale.generation.calibrated_generator      sub-batch 1/2 — 10 personas (prefix=niobe-s1-b0)…
+[streaming_writer] Started fresh run — cohort_id=cohort-bengal_murshidabad-808e84, staging=/tmp/simulatte_cohorts/.stream_cohort-bengal_murshidabad-808e84
+00:32:19  ERROR     popscale.generation.calibrated_generator    segment 1 sub-batch 0 failed — skipping (SyntaxError: unmatched ')' (demographic_sampler.py, line 1977))
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/PopScale/popscale/generation/calibrated_generator.py", line 247, in _run_segment
+    pg_result = await asyncio.wait_for(
+                ^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/tasks.py", line 488, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/orchestrator/invoke.py", line 197, in invoke_persona_generator
+    raw_envelope = await _run_generation(
+                   ^^^^^^^^^^^^^^^^^^^^^^
+    ...<11 lines>...
+    )
+    ^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 134, in _run_generation
+    from src.generation.demographic_sampler import sample_demographic_anchor
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1977
+    )
+    ^
+SyntaxError: unmatched ')'
+
+00:32:19  INFO      popscale.generation.calibrated_generator      sub-batch 2/2 — 1 personas (prefix=niobe-s1-b1)…
+00:32:19  ERROR     popscale.generation.calibrated_generator    segment 1 sub-batch 1 failed — skipping (SyntaxError: unmatched ')' (demographic_sampler.py, line 1977))
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/PopScale/popscale/generation/calibrated_generator.py", line 247, in _run_segment
+    pg_result = await asyncio.wait_for(
+                ^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/tasks.py", line 488, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/orchestrator/invoke.py", line 197, in invoke_persona_generator
+    raw_envelope = await _run_generation(
+                   ^^^^^^^^^^^^^^^^^^^^^^
+    ...<11 lines>...
+    )
+    ^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 134, in _run_generation
+    from src.generation.demographic_sampler import sample_demographic_anchor
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1977
+    )
+    ^
+SyntaxError: unmatched ')'
+
+00:32:19  INFO      popscale.generation.calibrated_generator    segment 2/3 done — 0 personas, $0.0000
+00:32:19  INFO      popscale.generation.calibrated_generator    segment 3/3 — Other — West Bengal (1 personas)…
+00:32:19  INFO      popscale.generation.calibrated_generator      sub-batch 1/1 — 1 personas (prefix=niobe-s2-b0)…
+00:32:19  ERROR     popscale.generation.calibrated_generator    segment 2 sub-batch 0 failed — skipping (SyntaxError: unmatched ')' (demographic_sampler.py, line 1977))
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/PopScale/popscale/generation/calibrated_generator.py", line 247, in _run_segment
+    pg_result = await asyncio.wait_for(
+                ^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/tasks.py", line 488, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/orchestrator/invoke.py", line 197, in invoke_persona_generator
+    raw_envelope = await _run_generation(
+                   ^^^^^^^^^^^^^^^^^^^^^^
+    ...<11 lines>...
+    )
+    ^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 134, in _run_generation
+    from src.generation.demographic_sampler import sample_demographic_anchor
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1977
+    )
+    ^
+SyntaxError: unmatched ')'
+
+00:32:19  INFO      popscale.generation.calibrated_generator    segment 3/3 done — 0 personas, $0.0000
+00:32:19  INFO      popscale.generation.calibrated_generator  run_calibrated_generation complete: CohortGen st-803a8795-gen | 0/40 personas (0%) | $0.0000 total ($0.0000/persona) | 0.6s
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/admin/Documents/Simulatte Projects/PopScale/benchmarks/wb_2026/constituency/wb_2026_constituency_benchmark.py", line 396, in <module>
+    asyncio.run(main())
+    ~~~~~~~~~~~^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/Users/admin/Documents/Simulatte Projects/PopScale/benchmarks/wb_2026/constituency/wb_2026_constituency_benchmark.py", line 382, in main
+    results = await run_all_clusters(cluster_ids)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/PopScale/benchmarks/wb_2026/constituency/wb_2026_constituency_benchmark.py", line 266, in run_all_clusters
+    cr = await run_cluster(cluster)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/PopScale/benchmarks/wb_2026/constituency/wb_2026_constituency_benchmark.py", line 168, in run_cluster
+    result = await run_niobe_study(request)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/simulatte-platform/niobe/niobe/runner.py", line 120, in run_niobe_study
+    return await run_study(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/PopScale/popscale/study/study_runner.py", line 359, in run_study
+    raise GenerationFailedError(
+    ...<2 lines>...
+    )
+popscale.study.study_runner.GenerationFailedError: Cohort generation delivered 0 personas for run st-803a8795. Check PG configuration and anchor_overrides.
+[orchestrator] Generating 10 VOLUME personas for Niobe…
+[orchestrator] Streaming mode active — threshold=8, personas will be checkpointed as they complete.
+[orchestrator] Generating 10 VOLUME personas for Niobe…
+[orchestrator] Streaming mode active — threshold=8, personas will be checkpointed as they complete.
+[orchestrator] Generating 8 VOLUME personas for Niobe…
+[orchestrator] Streaming mode active — threshold=8, personas will be checkpointed as they complete.
+[orchestrator] Generating 10 VOLUME personas for Niobe…
+[orchestrator] Streaming mode active — threshold=8, personas will be checkpointed as they complete.
+[orchestrator] Generating 1 VOLUME personas for Niobe…
+[orchestrator] Generating 1 VOLUME personas for Niobe…

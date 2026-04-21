@@ -1,0 +1,1434 @@
+00:25:13  INFO      wb_2026_constituency  Starting WB 2026 constituency run | id=20260421_185513 | clusters=10 | total_personas=440
+00:25:13  INFO      wb_2026_constituency  Running cluster: Murshidabad Muslim Heartland (40 personas, 22 seats)
+00:25:13  INFO      niobe.runner  run_niobe_study | NiobeStudyRequest('WB 2026 Constituency — Murshidabad Muslim Heartland', state=west bengal, n=40, domain=bengal_murshidabad)
+00:25:13  INFO      popscale.study.study_runner  run_study | run=st-d50f54ab | state=west bengal | n=40 | scenario=Which party will you vote for in the upcoming West Bengal as
+00:25:13  INFO      popscale.study.study_runner    Budget check: estimated $4.00 vs cap $20.00
+00:25:13  INFO      popscale.study.study_runner    Phase 1: generating 40 personas…
+00:25:13  INFO      popscale.generation.calibrated_generator  run_calibrated_generation | run=st-d50f54ab-gen | state=west bengal | n=40 | segments=3 | tier=volume
+00:25:13  INFO      popscale.generation.calibrated_generator    segment 1/3 — Hindu (28 personas)…
+00:25:13  INFO      popscale.generation.calibrated_generator      sub-batch 1/3 — 10 personas (prefix=niobe-s0-b0)…
+[streaming_writer] Started fresh run — cohort_id=cohort-general-66654c, staging=/tmp/simulatte_cohorts/.stream_cohort-general-66654c
+00:25:13  INFO      popscale.generation.calibrated_generator    segment 2/3 — Muslim (11 personas)…
+00:25:13  INFO      popscale.generation.calibrated_generator      sub-batch 1/2 — 10 personas (prefix=niobe-s1-b0)…
+[streaming_writer] Started fresh run — cohort_id=cohort-general-be8296, staging=/tmp/simulatte_cohorts/.stream_cohort-general-be8296
+00:25:13  INFO      popscale.generation.calibrated_generator    segment 3/3 — Other — West Bengal (1 personas)…
+00:25:13  INFO      popscale.generation.calibrated_generator      sub-batch 1/1 — 1 personas (prefix=niobe-s2-b0)…
+00:25:13  ERROR     popscale.generation.calibrated_generator    segment 0 sub-batch 0 failed — skipping (ValueError: too many values to unpack (expected 15, got 17))
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/PopScale/popscale/generation/calibrated_generator.py", line 247, in _run_segment
+    pg_result = await asyncio.wait_for(
+                ^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/tasks.py", line 488, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/orchestrator/invoke.py", line 197, in invoke_persona_generator
+    raw_envelope = await _run_generation(
+                   ^^^^^^^^^^^^^^^^^^^^^^
+    ...<11 lines>...
+    )
+    ^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 234, in _run_generation
+    p = await coro
+        ^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/tasks.py", line 618, in _wait_for_one
+    return f.result() if resolve else f
+           ~~~~~~~~^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+
+00:25:13  INFO      popscale.generation.calibrated_generator      sub-batch 2/3 — 10 personas (prefix=niobe-s0-b1)…
+[streaming_writer] Started fresh run — cohort_id=cohort-general-0cfe37, staging=/tmp/simulatte_cohorts/.stream_cohort-general-0cfe37
+00:25:13  ERROR     popscale.generation.calibrated_generator    segment 1 sub-batch 0 failed — skipping (ValueError: too many values to unpack (expected 15, got 17))
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/PopScale/popscale/generation/calibrated_generator.py", line 247, in _run_segment
+    pg_result = await asyncio.wait_for(
+                ^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/tasks.py", line 488, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/orchestrator/invoke.py", line 197, in invoke_persona_generator
+    raw_envelope = await _run_generation(
+                   ^^^^^^^^^^^^^^^^^^^^^^
+    ...<11 lines>...
+    )
+    ^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 234, in _run_generation
+    p = await coro
+        ^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/tasks.py", line 618, in _wait_for_one
+    return f.result() if resolve else f
+           ~~~~~~~~^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+
+00:25:13  INFO      popscale.generation.calibrated_generator      sub-batch 2/2 — 1 personas (prefix=niobe-s1-b1)…
+00:25:13  ERROR     popscale.generation.calibrated_generator    segment 2 sub-batch 0 failed — skipping (ValueError: too many values to unpack (expected 15, got 17))
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/PopScale/popscale/generation/calibrated_generator.py", line 247, in _run_segment
+    pg_result = await asyncio.wait_for(
+                ^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/tasks.py", line 488, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/orchestrator/invoke.py", line 197, in invoke_persona_generator
+    raw_envelope = await _run_generation(
+                   ^^^^^^^^^^^^^^^^^^^^^^
+    ...<11 lines>...
+    )
+    ^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 239, in _run_generation
+    candidates = list(await asyncio.gather(*[_build_bounded(i) for i in range(1, pool_size + 1)]))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+
+00:25:13  INFO      popscale.generation.calibrated_generator    segment 3/3 done — 0 personas, $0.0000
+00:25:14  ERROR     popscale.generation.calibrated_generator    segment 0 sub-batch 1 failed — skipping (ValueError: too many values to unpack (expected 15, got 17))
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/PopScale/popscale/generation/calibrated_generator.py", line 247, in _run_segment
+    pg_result = await asyncio.wait_for(
+                ^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/tasks.py", line 488, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/orchestrator/invoke.py", line 197, in invoke_persona_generator
+    raw_envelope = await _run_generation(
+                   ^^^^^^^^^^^^^^^^^^^^^^
+    ...<11 lines>...
+    )
+    ^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 234, in _run_generation
+    p = await coro
+        ^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/tasks.py", line 618, in _wait_for_one
+    return f.result() if resolve else f
+           ~~~~~~~~^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+
+00:25:14  INFO      popscale.generation.calibrated_generator      sub-batch 3/3 — 8 personas (prefix=niobe-s0-b2)…
+[streaming_writer] Started fresh run — cohort_id=cohort-general-f43da3, staging=/tmp/simulatte_cohorts/.stream_cohort-general-f43da3
+00:25:14  ERROR     popscale.generation.calibrated_generator    segment 1 sub-batch 1 failed — skipping (ValueError: too many values to unpack (expected 15, got 17))
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/PopScale/popscale/generation/calibrated_generator.py", line 247, in _run_segment
+    pg_result = await asyncio.wait_for(
+                ^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/tasks.py", line 488, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/orchestrator/invoke.py", line 197, in invoke_persona_generator
+    raw_envelope = await _run_generation(
+                   ^^^^^^^^^^^^^^^^^^^^^^
+    ...<11 lines>...
+    )
+    ^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 239, in _run_generation
+    candidates = list(await asyncio.gather(*[_build_bounded(i) for i in range(1, pool_size + 1)]))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+
+00:25:14  INFO      popscale.generation.calibrated_generator    segment 2/3 done — 0 personas, $0.0000
+00:25:14  ERROR     popscale.generation.calibrated_generator    segment 0 sub-batch 2 failed — skipping (ValueError: too many values to unpack (expected 15, got 17))
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/PopScale/popscale/generation/calibrated_generator.py", line 247, in _run_segment
+    pg_result = await asyncio.wait_for(
+                ^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/tasks.py", line 488, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/orchestrator/invoke.py", line 197, in invoke_persona_generator
+    raw_envelope = await _run_generation(
+                   ^^^^^^^^^^^^^^^^^^^^^^
+    ...<11 lines>...
+    )
+    ^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 234, in _run_generation
+    p = await coro
+        ^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/tasks.py", line 618, in _wait_for_one
+    return f.result() if resolve else f
+           ~~~~~~~~^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+
+00:25:14  INFO      popscale.generation.calibrated_generator    segment 1/3 done — 0 personas, $0.0000
+00:25:14  INFO      popscale.generation.calibrated_generator  run_calibrated_generation complete: CohortGen st-d50f54ab-gen | 0/40 personas (0%) | $0.0000 total ($0.0000/persona) | 0.3s
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/admin/Documents/Simulatte Projects/PopScale/benchmarks/wb_2026/constituency/wb_2026_constituency_benchmark.py", line 396, in <module>
+    asyncio.run(main())
+    ~~~~~~~~~~~^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/Users/admin/Documents/Simulatte Projects/PopScale/benchmarks/wb_2026/constituency/wb_2026_constituency_benchmark.py", line 382, in main
+    results = await run_all_clusters(cluster_ids)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/PopScale/benchmarks/wb_2026/constituency/wb_2026_constituency_benchmark.py", line 266, in run_all_clusters
+    cr = await run_cluster(cluster)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/PopScale/benchmarks/wb_2026/constituency/wb_2026_constituency_benchmark.py", line 168, in run_cluster
+    result = await run_niobe_study(request)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/simulatte-platform/niobe/niobe/runner.py", line 120, in run_niobe_study
+    return await run_study(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/PopScale/popscale/study/study_runner.py", line 359, in run_study
+    raise GenerationFailedError(
+    ...<2 lines>...
+    )
+popscale.study.study_runner.GenerationFailedError: Cohort generation delivered 0 personas for run st-d50f54ab. Check PG configuration and anchor_overrides.
+[orchestrator] Generating 10 VOLUME personas for Niobe…
+[orchestrator] Streaming mode active — threshold=8, personas will be checkpointed as they complete.
+[orchestrator] Generating 10 VOLUME personas for Niobe…
+[orchestrator] Streaming mode active — threshold=8, personas will be checkpointed as they complete.
+[orchestrator] Generating 1 VOLUME personas for Niobe…
+[orchestrator] Generating 10 VOLUME personas for Niobe…
+[orchestrator] Streaming mode active — threshold=8, personas will be checkpointed as they complete.
+[orchestrator] Generating 1 VOLUME personas for Niobe…
+[orchestrator] Generating 8 VOLUME personas for Niobe…
+[orchestrator] Streaming mode active — threshold=8, personas will be checkpointed as they complete.
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-38' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-37' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-36' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-35' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-34' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-33' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-32' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-31' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-30' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-29' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-28' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-27' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-26' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-6' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-7' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-8' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-9' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-10' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-11' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-12' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-13' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-14' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-15' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-16' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-17' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-18' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-19' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-20' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-21' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-22' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-23' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-24' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-39' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-40' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-41' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-42' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-43' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-44' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-47' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-48' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-49' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-50' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-51' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-52' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-53' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-54' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-55' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-56' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-57' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-58' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-59' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-60' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-61' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-62' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-63' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-64' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-65' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-69' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-70' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-71' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-72' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-73' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-74' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-75' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-76' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-77' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-78' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-79' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-80' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-81' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-82' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)
+00:25:14  ERROR     asyncio  Task exception was never retrieved
+future: <Task finished name='Task-83' coro=<_run_generation.<locals>._build_bounded() done, defined at /Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py:221> exception=ValueError('too many values to unpack (expected 15, got 17)')>
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 223, in _build_bounded
+    return await _build_one(i)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/cli.py", line 173, in _build_one
+    demographic_anchor = sample_demographic_anchor(domain=domain, index=pool_index_base + (i - 1), anchor_overrides=anchor_overrides)
+  File "/Users/admin/Documents/Simulatte Projects/Persona Generator/src/generation/demographic_sampler.py", line 1896, in sample_demographic_anchor
+    (name, age, gender, country, region, city, urban_tier,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     structure, size, income_bracket, dual_income,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     life_stage, education, employment, political_lean) = entry
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 15, got 17)

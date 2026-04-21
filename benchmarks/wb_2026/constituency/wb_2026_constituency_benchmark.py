@@ -46,8 +46,10 @@ for p in [str(_POPSCALE_ROOT), str(_NIOBE_ROOT), str(_PG_ROOT)]:
 
 from niobe.study_request import NiobeStudyRequest   # noqa: E402
 from niobe.runner import run_niobe_study             # noqa: E402
-from .cluster_definitions import CLUSTERS            # noqa: E402
+from .cluster_definitions import CLUSTERS, SWING_CLUSTER_IDS  # noqa: E402
 from .seat_model import compute_seat_predictions, print_seat_report  # noqa: E402
+
+N_ENSEMBLE_RUNS = 3   # Independent runs averaged for swing clusters
 
 logging.basicConfig(
     level=logging.INFO,
@@ -184,6 +186,60 @@ async def run_cluster(cluster: dict) -> dict:
         "sim_others": shares["Others"],
         "swing_notes": cluster["swing_notes"],
         "key_seats":   cluster["key_seats"],
+        "marginal_seats_2021": cluster.get("marginal_seats_2021"),
+        "ensemble_runs": 1,
+    }
+
+
+async def run_cluster_ensemble(cluster: dict, n_runs: int = N_ENSEMBLE_RUNS) -> dict:
+    """Run a swing cluster n_runs times and average vote shares for stability.
+
+    Reduces random sampling noise by √n_runs without changing pool calibration.
+    Used for the 4 kingmaker clusters where every percentage point matters.
+    """
+    logger.info("Ensemble ×%d starting: %s (%d personas/run, %d seats)",
+                n_runs, cluster["name"], cluster["n_personas"], cluster["n_seats"])
+    parties = ["TMC", "BJP", "Left-Congress", "Others"]
+    all_shares: list[dict[str, float]] = []
+
+    for i in range(n_runs):
+        logger.info("  [%s] ensemble run %d/%d", cluster["id"], i + 1, n_runs)
+        request = build_cluster_request(cluster)
+        result = await run_niobe_study(request)
+        shares = extract_vote_shares(result)
+        all_shares.append(shares)
+        logger.info("    run %d → TMC %.1f%% BJP %.1f%% Left %.1f%% Other %.1f%%",
+                    i + 1, shares["TMC"] * 100, shares["BJP"] * 100,
+                    shares["Left-Congress"] * 100, shares["Others"] * 100)
+
+    # Average across runs then re-normalise
+    avg = {p: sum(s[p] for s in all_shares) / n_runs for p in parties}
+    total = sum(avg.values())
+    avg = {p: round(v / total, 4) for p, v in avg.items()}
+
+    logger.info("  %s ensemble avg → TMC %.1f%% BJP %.1f%% Left %.1f%% Other %.1f%%",
+                cluster["id"],
+                avg["TMC"] * 100, avg["BJP"] * 100,
+                avg["Left-Congress"] * 100, avg["Others"] * 100)
+
+    return {
+        "id": cluster["id"],
+        "name": cluster["name"],
+        "n_seats": cluster["n_seats"],
+        "n_personas": cluster["n_personas"] * n_runs,   # total personas run
+        "tmc_2021":    cluster["tmc_2021"],
+        "bjp_2021":    cluster["bjp_2021"],
+        "left_2021":   cluster["left_2021"],
+        "others_2021": cluster["others_2021"],
+        "sim_tmc":    avg["TMC"],
+        "sim_bjp":    avg["BJP"],
+        "sim_left":   avg["Left-Congress"],
+        "sim_others": avg["Others"],
+        "swing_notes": cluster["swing_notes"],
+        "key_seats":   cluster["key_seats"],
+        "marginal_seats_2021": cluster.get("marginal_seats_2021"),
+        "ensemble_runs": n_runs,
+        "ensemble_detail": all_shares,
     }
 
 
@@ -200,13 +256,17 @@ async def run_all_clusters(cluster_ids: list[str] | None = None) -> dict:
                 run_id, len(target_clusters),
                 sum(c["n_personas"] for c in target_clusters))
 
-    # Run clusters sequentially to manage API rate limits
+    # Run clusters sequentially to manage API rate limits.
+    # Swing clusters use ensemble averaging (3 independent runs).
     cluster_results = []
     for cluster in target_clusters:
-        cr = await run_cluster(cluster)
+        if cluster["id"] in SWING_CLUSTER_IDS:
+            cr = await run_cluster_ensemble(cluster, n_runs=N_ENSEMBLE_RUNS)
+        else:
+            cr = await run_cluster(cluster)
         cluster_results.append(cr)
 
-    seat_result = compute_seat_predictions(cluster_results)
+    seat_result = compute_seat_predictions(cluster_results, use_cube_law=True)
 
     return {
         "run_id": run_id,
@@ -295,16 +355,27 @@ async def main() -> None:
         return
 
     if args.dry_run:
-        print("\n── WB 2026 Constituency Benchmark — DRY RUN ──")
+        print("\n── WB 2026 Constituency Benchmark B-WB-7 — DRY RUN ──")
         print(f"  Clusters: {len(CLUSTERS)}")
-        total_p = sum(c["n_personas"] for c in CLUSTERS)
-        print(f"  Total personas: {total_p}")
+        swing = [c for c in CLUSTERS if c["id"] in SWING_CLUSTER_IDS]
+        stable = [c for c in CLUSTERS if c["id"] not in SWING_CLUSTER_IDS]
+        swing_runs = sum(c["n_personas"] * N_ENSEMBLE_RUNS for c in swing)
+        stable_runs = sum(c["n_personas"] for c in stable)
+        total_runs = swing_runs + stable_runs
+        print(f"  Swing clusters (×{N_ENSEMBLE_RUNS} ensemble): {len(swing)} clusters, "
+              f"{swing_runs} persona-runs")
+        print(f"  Stable clusters (×1):          {len(stable)} clusters, "
+              f"{stable_runs} persona-runs")
+        print(f"  Total persona-runs: {total_runs}")
         print(f"  Total seats: {sum(c['n_seats'] for c in CLUSTERS)}")
-        print(f"  Est. cost: ~${total_p * 0.05:.0f}–${total_p * 0.08:.0f}")
+        print(f"  Seat model: cube-law FPTP")
+        print(f"  Est. cost: ~${total_runs * 0.07:.0f}–${total_runs * 0.11:.0f}")
         print()
         for c in CLUSTERS:
-            print(f"  [{c['id']:25s}] {c['n_seats']:3d} seats | {c['n_personas']:2d} personas | "
-                  f"2021: TMC {c['tmc_2021']:.0%} BJP {c['bjp_2021']:.0%} Left {c['left_2021']:.0%}")
+            ens = f"×{N_ENSEMBLE_RUNS} ensemble" if c["id"] in SWING_CLUSTER_IDS else "×1        "
+            print(f"  [{c['id']:25s}] {c['n_seats']:3d} seats | {c['n_personas']:2d} personas {ens} | "
+                  f"marginal={c.get('marginal_seats_2021','?'):2} | "
+                  f"2021: TMC {c['tmc_2021']:.0%} BJP {c['bjp_2021']:.0%}")
         return
 
     cluster_ids = [args.cluster] if args.cluster else None

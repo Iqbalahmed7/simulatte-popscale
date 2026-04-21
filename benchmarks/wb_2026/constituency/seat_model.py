@@ -32,6 +32,7 @@ import math
 
 def compute_seat_predictions(
     cluster_results: list[dict],
+    use_cube_law: bool = True,
 ) -> dict:
     """Convert cluster vote shares to seat predictions.
 
@@ -40,6 +41,10 @@ def compute_seat_predictions(
             - id, name, n_seats
             - tmc_2021, bjp_2021, left_2021, others_2021 (baselines)
             - sim_tmc, sim_bjp, sim_left, sim_others (simulated shares)
+            - marginal_seats_2021 (optional): actual ECI marginal seat count
+        use_cube_law: Apply FPTP cube-law amplification (default True).
+            In FPTP systems seats scale ~cubically with vote share ratios.
+            Corrects the systematic undercount of the leading party.
 
     Returns:
         dict with:
@@ -77,21 +82,31 @@ def compute_seat_predictions(
         swings = {p: simulated[p] - baseline[p] for p in parties}
 
         # Uniform swing seat model:
-        # Each party's projected seat share = baseline seat share + swing in vote share
-        # Baseline seat share is approximated as proportional to vote share
-        # (simple assumption; cube-law would amplify but we stay conservative)
+        # Each party's projected vote share = baseline + swing
         projected_shares = {}
         for p in parties:
             proj = baseline[p] + swings[p]
             projected_shares[p] = max(0.0, proj)
 
-        # Re-normalise projected shares
+        # Re-normalise projected vote shares
         proj_total = sum(projected_shares.values())
         if proj_total > 0:
             projected_shares = {p: v / proj_total for p, v in projected_shares.items()}
 
-        # Allocate seats proportionally to projected shares (rounding to integers)
-        raw_seats = {p: projected_shares[p] * n for p in parties}
+        # Convert vote shares → seat shares.
+        # Cube-law (default): in FPTP systems seats scale ~cubically with vote ratio,
+        # amplifying the leading party. Linear is a lower bound; cube-law is more realistic.
+        if use_cube_law:
+            cube = {p: projected_shares[p] ** 3 for p in parties}
+            cube_total = sum(cube.values())
+            seat_shares = (
+                {p: cube[p] / cube_total for p in parties}
+                if cube_total > 0 else projected_shares
+            )
+        else:
+            seat_shares = projected_shares
+
+        raw_seats = {p: seat_shares[p] * n for p in parties}
 
         # Round to integers preserving total using largest-remainder method
         floor_seats = {p: math.floor(v) for p, v in raw_seats.items()}
@@ -109,11 +124,14 @@ def compute_seat_predictions(
         for p in parties:
             total_seats[p] += final_seats[p]
 
-        # Marginal seats: seats where projected winning margin < 10pp
-        # (proxy for uncertainty in this cluster)
-        sorted_proj = sorted(projected_shares.values(), reverse=True)
-        margin = sorted_proj[0] - sorted_proj[1] if len(sorted_proj) > 1 else sorted_proj[0]
-        marginal_seat_count = max(1, round(n * max(0, 0.15 - margin) / 0.15))
+        # Marginal seats: use actual 2021 ECI data if provided,
+        # otherwise estimate from projected vote-share margin.
+        if r.get("marginal_seats_2021") is not None:
+            marginal_seat_count = r["marginal_seats_2021"]
+        else:
+            sorted_proj = sorted(projected_shares.values(), reverse=True)
+            margin = sorted_proj[0] - sorted_proj[1] if len(sorted_proj) > 1 else sorted_proj[0]
+            marginal_seat_count = max(1, round(n * max(0, 0.15 - margin) / 0.15))
 
         cluster_breakdown.append({
             "id": r["id"],
@@ -121,8 +139,10 @@ def compute_seat_predictions(
             "n_seats": n,
             "seats": final_seats,
             "projected_vote_shares": {p: round(projected_shares[p], 3) for p in parties},
+            "seat_shares": {p: round(seat_shares[p], 3) for p in parties},
             "swing": {p: round(swings[p], 3) for p in parties},
             "marginal_seats": marginal_seat_count,
+            "ensemble_runs": r.get("ensemble_runs", 1),
         })
 
         swing_analysis.append({
@@ -144,6 +164,7 @@ def compute_seat_predictions(
         "confidence_range_seats": confidence_range,
         "majority_threshold": 148,
         "tmc_majority": total_seats["TMC"] >= 148,
+        "seat_model": "cube_law" if use_cube_law else "linear",
     }
 
 

@@ -1,18 +1,26 @@
-"""cluster_definitions.py — B-WB-6
+"""cluster_definitions.py — B-WB-7
 
 Constituency cluster metadata for West Bengal 2026 assembly election.
 10 clusters covering all 294 seats.
 
+B-WB-7 changes vs B-WB-6:
+  - Swing clusters (Presidency, Jungle Mahal, Matua Belt, Burdwan) upgraded to
+    60 personas + 3-run ensemble averaging for tighter confidence bounds.
+  - Stable clusters upgraded to 30-40 personas.
+  - marginal_seats_2021 added from ECI 2021 data for accurate uncertainty modelling.
+  - Cube-law FPTP seat model enabled in seat_model.py.
+
 Each cluster dict contains:
-  domain       : PG domain key (maps to cluster persona pool)
-  n_seats      : Number of assembly seats in this cluster
-  tmc_2021     : TMC vote share 2021 (baseline)
-  bjp_2021     : BJP vote share 2021 (baseline)
-  left_2021    : Left-Congress vote share 2021 (baseline)
-  others_2021  : Others vote share 2021 (baseline)
-  n_personas   : Personas to run per cluster (default 20)
-  context_note : District-specific 2026 context injected into scenario
-  swing_notes  : Key 2026 dynamics affecting this cluster
+  domain              : PG domain key (maps to cluster persona pool)
+  n_seats             : Number of assembly seats in this cluster
+  tmc_2021            : TMC vote share 2021 (baseline)
+  bjp_2021            : BJP vote share 2021 (baseline)
+  left_2021           : Left-Congress vote share 2021 (baseline)
+  others_2021         : Others vote share 2021 (baseline)
+  n_personas          : Personas to run per cluster (per ensemble run)
+  marginal_seats_2021 : Seats decided by <5pp margin in 2021 (ECI-informed)
+  context_note        : District-specific 2026 context injected into scenario
+  swing_notes         : Key 2026 dynamics affecting this cluster
 """
 from __future__ import annotations
 
@@ -26,7 +34,8 @@ CLUSTERS: list[dict] = [
         "bjp_2021": 0.10,
         "left_2021": 0.00,
         "others_2021": 0.00,
-        "n_personas": 20,
+        "n_personas": 40,
+        "marginal_seats_2021": 5,
         "context_note": (
             "You are voting in the Murshidabad district — Bengal's most Muslim-majority "
             "district (66% Muslim). TMC won 20 of 22 seats here in 2021. "
@@ -49,7 +58,8 @@ CLUSTERS: list[dict] = [
         "bjp_2021": 0.33,
         "left_2021": 0.00,
         "others_2021": 0.00,
-        "n_personas": 20,
+        "n_personas": 40,
+        "marginal_seats_2021": 5,
         "context_note": (
             "You are voting in the Malda district — Muslim-plurality (51%) with significant "
             "Hindu population. TMC won 8 of 12 seats in 2021 but BJP has a real base here. "
@@ -70,7 +80,8 @@ CLUSTERS: list[dict] = [
         "bjp_2021": 0.30,
         "left_2021": 0.05,
         "others_2021": 0.00,
-        "n_personas": 20,
+        "n_personas": 60,
+        "marginal_seats_2021": 18,
         "context_note": (
             "You are voting in the Matua belt — Nadia and North 24 Parganas — home to "
             "1.3 crore Matua (Namasudra) voters, Hindu SC refugees from Bangladesh. "
@@ -95,7 +106,8 @@ CLUSTERS: list[dict] = [
         "bjp_2021": 0.18,
         "left_2021": 0.04,
         "others_2021": 0.00,
-        "n_personas": 20,
+        "n_personas": 60,
+        "marginal_seats_2021": 20,
         "context_note": (
             "You are voting in the Jungle Mahal — the tribal belt of West Midnapore, "
             "Bankura, Purulia, and Jhargram. Scheduled Tribe (ST) communities — Santali, "
@@ -120,7 +132,8 @@ CLUSTERS: list[dict] = [
         "bjp_2021": 0.60,
         "left_2021": 0.08,
         "others_2021": 0.00,
-        "n_personas": 20,
+        "n_personas": 30,
+        "marginal_seats_2021": 10,
         "context_note": (
             "You are voting in North Bengal — Cooch Behar, Alipurduar, and Jalpaiguri. "
             "BJP has dominated this region since 2019 through Koch-Rajbongshi OBC mobilisation "
@@ -144,7 +157,8 @@ CLUSTERS: list[dict] = [
         "bjp_2021": 0.08,
         "left_2021": 0.02,
         "others_2021": 0.00,
-        "n_personas": 20,
+        "n_personas": 30,
+        "marginal_seats_2021": 2,
         "context_note": (
             "You are voting in urban Kolkata — the 11 assembly seats within the Kolkata "
             "Municipal Corporation boundary. TMC is dominant here; Ballygunge saw TMC win "
@@ -168,7 +182,8 @@ CLUSTERS: list[dict] = [
         "bjp_2021": 0.20,
         "left_2021": 0.03,
         "others_2021": 0.00,
-        "n_personas": 20,
+        "n_personas": 40,
+        "marginal_seats_2021": 10,
         "context_note": (
             "You are voting in South Bengal's rural zones — South 24-Parganas, coastal "
             "Midnapore, and Hooghly. This is Mamata Banerjee's original stronghold. "
@@ -192,7 +207,8 @@ CLUSTERS: list[dict] = [
         "bjp_2021": 0.25,
         "left_2021": 0.03,
         "others_2021": 0.00,
-        "n_personas": 20,
+        "n_personas": 60,
+        "marginal_seats_2021": 10,
         "context_note": (
             "You are voting in the Burdwan industrial zone — Asansol-Durgapur-Bardhaman. "
             "This is Bengal's industrial heartland: coal mines (Kulti, Raniganj), "
@@ -217,7 +233,8 @@ CLUSTERS: list[dict] = [
         "bjp_2021": 0.12,
         "left_2021": 0.18,
         "others_2021": 0.00,
-        "n_personas": 20,
+        "n_personas": 60,
+        "marginal_seats_2021": 18,
         "context_note": (
             "You are voting in the Presidency Division suburbs — the belt of North 24 Parganas "
             "(Barasat, Baranagar, Dum Dum, Barrackpore, Habra, Bangaon) and Nadia-adjacent "
@@ -242,6 +259,7 @@ CLUSTERS: list[dict] = [
         "left_2021": 0.10,
         "others_2021": 0.05,
         "n_personas": 20,
+        "marginal_seats_2021": 5,
         "context_note": (
             "You are voting in Darjeeling district — 3 hill seats (Darjeeling, Kurseong, "
             "Kalimpong) and 6 adjacent plains seats (Siliguri, Phansidewa, Matigara-Naxalbari). "
@@ -264,3 +282,11 @@ CLUSTER_BY_ID: dict[str, dict] = {c["id"]: c for c in CLUSTERS}
 # Sanity check: total seats should equal 294
 _total_seats = sum(c["n_seats"] for c in CLUSTERS)
 assert _total_seats == 294, f"Seat count mismatch: {_total_seats} != 294"
+
+# Swing clusters run with ensemble averaging (3 independent runs)
+SWING_CLUSTER_IDS: set[str] = {
+    "matua_belt",
+    "jungle_mahal",
+    "burdwan_industrial",
+    "presidency_suburbs",
+}

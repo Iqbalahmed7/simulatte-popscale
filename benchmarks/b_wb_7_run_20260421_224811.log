@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/admin/Documents/Simulatte Projects/PopScale/benchmarks/wb_2026/constituency/wb_2026_constituency_benchmark.py", line 49, in <module>
+    from .cluster_definitions import CLUSTERS, SWING_CLUSTER_IDS  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ImportError: attempted relative import with no known parent package
