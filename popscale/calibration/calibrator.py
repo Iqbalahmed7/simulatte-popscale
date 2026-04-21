@@ -98,11 +98,11 @@ def calibrate(spec: PopulationSpec) -> list[PersonaSegment]:
         )
 
     if effective_religion and spec.stratify_by_income:
-        segments = _stratify_religion_income(spec, profile, base_overrides)
+        segments = _stratify_religion_income(spec, profile, base_overrides, spec.domain)
     elif effective_religion:
-        segments = _stratify_religion(spec, profile, base_overrides)
+        segments = _stratify_religion(spec, profile, base_overrides, spec.domain)
     elif spec.stratify_by_income:
-        segments = _stratify_income(spec, profile, base_overrides)
+        segments = _stratify_income(spec, profile, base_overrides, spec.domain)
     else:
         segments = [PersonaSegment(
             count=spec.n_personas,
@@ -169,6 +169,7 @@ def _stratify_religion(
     spec: PopulationSpec,
     profile: DemographicProfile,
     base_overrides: dict,
+    domain: str = "general",
 ) -> list[PersonaSegment]:
     """Split cohort proportionally by religion."""
     rel = profile.religious_composition
@@ -188,6 +189,7 @@ def _stratify_religion(
         buckets=buckets,
         n_total=spec.n_personas,
         base_overrides=base_overrides,
+        domain=domain,
     )
 
 
@@ -195,6 +197,7 @@ def _stratify_income(
     spec: PopulationSpec,
     profile: DemographicProfile,
     base_overrides: dict,
+    domain: str = "general",
 ) -> list[PersonaSegment]:
     """Split cohort proportionally by income band."""
     inc = profile.income_bands
@@ -209,6 +212,7 @@ def _stratify_income(
         buckets=buckets,
         n_total=spec.n_personas,
         base_overrides=base_overrides,
+        domain=domain,
     )
 
 
@@ -216,6 +220,7 @@ def _stratify_religion_income(
     spec: PopulationSpec,
     profile: DemographicProfile,
     base_overrides: dict,
+    domain: str = "general",
 ) -> list[PersonaSegment]:
     """Cross-stratify by religion × income. Produces up to 9 segments."""
     rel = profile.religious_composition
@@ -244,6 +249,7 @@ def _stratify_religion_income(
             overrides = {**base_overrides, **rel_overrides, **inc_overrides}
             segments.append(PersonaSegment(
                 count=combined_count,
+                domain=domain,
                 anchor_overrides=overrides,
                 label=f"{rel_label}, {inc_label} — {profile.state}",
                 proportion=round(combined_pct, 4),
@@ -256,6 +262,7 @@ def _proportional_segments(
     buckets: list[tuple[str, float, dict]],
     n_total: int,
     base_overrides: dict,
+    domain: str = "general",
 ) -> list[PersonaSegment]:
     """Convert (label, proportion, extra_overrides) buckets into PersonaSegments."""
     segments: list[PersonaSegment] = []
@@ -264,6 +271,7 @@ def _proportional_segments(
         overrides = {**base_overrides, **extra}
         segments.append(PersonaSegment(
             count=count,
+            domain=domain,
             anchor_overrides=overrides,
             label=label,
             proportion=round(pct, 4),
