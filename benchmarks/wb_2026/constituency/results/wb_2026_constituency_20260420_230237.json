@@ -1,0 +1,543 @@
+{
+  "run_id": "20260420_230237",
+  "run_date": "2026-04-21T00:02:11.281256+00:00",
+  "n_clusters": 10,
+  "total_personas": 200,
+  "total_seats": 294,
+  "cluster_results": [
+    {
+      "id": "murshidabad",
+      "name": "Murshidabad Muslim Heartland",
+      "n_seats": 22,
+      "n_personas": 20,
+      "tmc_2021": 0.9,
+      "bjp_2021": 0.1,
+      "left_2021": 0.0,
+      "others_2021": 0.0,
+      "sim_tmc": 0.6,
+      "sim_bjp": 0.0,
+      "sim_left": 0.05,
+      "sim_others": 0.35,
+      "swing_notes": "SIR 460k deletions; AIMIM-AJUP fragmentation; Muslim-TMC defensive vote vs protest",
+      "key_seats": [
+        "Bhagabangola",
+        "Jalangi",
+        "Farakka",
+        "Domkal",
+        "Kandi"
+      ]
+    },
+    {
+      "id": "malda",
+      "name": "Malda Muslim Plurality Belt",
+      "n_seats": 12,
+      "n_personas": 20,
+      "tmc_2021": 0.67,
+      "bjp_2021": 0.33,
+      "left_2021": 0.0,
+      "others_2021": 0.0,
+      "sim_tmc": 0.5,
+      "sim_bjp": 0.35,
+      "sim_left": 0.15,
+      "sim_others": 0.0,
+      "swing_notes": "SIR 240k deletions; AIMIM-ISF-AJUP three-way Muslim split; BJP Hindu base",
+      "key_seats": [
+        "Englishbazar",
+        "Mothabari",
+        "Ratua",
+        "Harishchandrapur"
+      ]
+    },
+    {
+      "id": "matua_belt",
+      "name": "Matua Refugee Belt (Nadia + N24Pgs)",
+      "n_seats": 40,
+      "n_personas": 20,
+      "tmc_2021": 0.65,
+      "bjp_2021": 0.3,
+      "left_2021": 0.05,
+      "others_2021": 0.0,
+      "sim_tmc": 0.75,
+      "sim_bjp": 0.2,
+      "sim_left": 0.05,
+      "sim_others": 0.0,
+      "swing_notes": "SIR 77.86% deletion rate; Matua CAA-SIR paradox; BJP-TMC swing 8-12 seats",
+      "key_seats": [
+        "Gaighata",
+        "Krishnaganj",
+        "Karimpur",
+        "Nakashipara",
+        "Bangaon",
+        "Ashokenagar"
+      ]
+    },
+    {
+      "id": "jungle_mahal",
+      "name": "Jungle Mahal Tribal Belt",
+      "n_seats": 50,
+      "n_personas": 20,
+      "tmc_2021": 0.78,
+      "bjp_2021": 0.18,
+      "left_2021": 0.04,
+      "others_2021": 0.0,
+      "sim_tmc": 0.5,
+      "sim_bjp": 0.35,
+      "sim_left": 0.15,
+      "sim_others": 0.0,
+      "swing_notes": "Ultra-marginal seats; welfare vs BJP tribal programs; TMC MGNREGA base",
+      "key_seats": [
+        "Ghatal",
+        "Bankura",
+        "Balarampur",
+        "Dantan",
+        "Kulti"
+      ]
+    },
+    {
+      "id": "north_bengal",
+      "name": "North Bengal Koch-Rajbongshi",
+      "n_seats": 30,
+      "n_personas": 20,
+      "tmc_2021": 0.32,
+      "bjp_2021": 0.6,
+      "left_2021": 0.08,
+      "others_2021": 0.0,
+      "sim_tmc": 0.05,
+      "sim_bjp": 0.65,
+      "sim_left": 0.3,
+      "sim_others": 0.0,
+      "swing_notes": "BJP stronghold; Koch-Rajbongshi OBC base; Dinhata (57-vote margin); tea garden swing",
+      "key_seats": [
+        "Dinhata",
+        "Jalpaiguri",
+        "Mathabhanga",
+        "Tufanganj",
+        "Alipurduar"
+      ]
+    },
+    {
+      "id": "kolkata_urban",
+      "name": "Urban Kolkata",
+      "n_seats": 11,
+      "n_personas": 20,
+      "tmc_2021": 0.9,
+      "bjp_2021": 0.08,
+      "left_2021": 0.02,
+      "others_2021": 0.0,
+      "sim_tmc": 0.5,
+      "sim_bjp": 0.15,
+      "sim_left": 0.3,
+      "sim_others": 0.05,
+      "swing_notes": "TMC fortress; Bhabanipur Mamata vs Suvendu prestige contest; minimal swing",
+      "key_seats": [
+        "Bhabanipur",
+        "Ballygunge",
+        "Beleghata",
+        "Entally",
+        "Rashbehari"
+      ]
+    },
+    {
+      "id": "south_rural",
+      "name": "South Bengal Rural TMC Stronghold",
+      "n_seats": 55,
+      "n_personas": 20,
+      "tmc_2021": 0.77,
+      "bjp_2021": 0.2,
+      "left_2021": 0.03,
+      "others_2021": 0.0,
+      "sim_tmc": 0.75,
+      "sim_bjp": 0.1,
+      "sim_left": 0.15,
+      "sim_others": 0.0,
+      "swing_notes": "Welfare scheme saturated; Tamluk ultra-marginal; Sandeshkhali limited spillover",
+      "key_seats": [
+        "Tamluk",
+        "Kakdwip",
+        "Diamond Harbour",
+        "Contai",
+        "Baruipur"
+      ]
+    },
+    {
+      "id": "burdwan_industrial",
+      "name": "Burdwan Industrial Zone",
+      "n_seats": 25,
+      "n_personas": 20,
+      "tmc_2021": 0.72,
+      "bjp_2021": 0.25,
+      "left_2021": 0.03,
+      "others_2021": 0.0,
+      "sim_tmc": 0.1,
+      "sim_bjp": 0.25,
+      "sim_left": 0.65,
+      "sim_others": 0.0,
+      "swing_notes": "Left CPM residual (Kulti 679 votes); Asansol BJP defector flux; industrial decline",
+      "key_seats": [
+        "Kulti",
+        "Asansol",
+        "Durgapur",
+        "Bardhaman",
+        "Raniganj"
+      ]
+    },
+    {
+      "id": "presidency_suburbs",
+      "name": "Presidency Division Suburbs (Kingmaker Zone)",
+      "n_seats": 40,
+      "n_personas": 20,
+      "tmc_2021": 0.7,
+      "bjp_2021": 0.12,
+      "left_2021": 0.18,
+      "others_2021": 0.0,
+      "sim_tmc": 0.35,
+      "sim_bjp": 0.25,
+      "sim_left": 0.35,
+      "sim_others": 0.05,
+      "swing_notes": "KINGMAKER ZONE; Left 18% base; SIR 330k N24Pgs; Presidency determines state winner",
+      "key_seats": [
+        "Ashokenagar",
+        "Bangaon",
+        "Baranagar",
+        "Dum Dum",
+        "Barasat",
+        "Habra"
+      ]
+    },
+    {
+      "id": "darjeeling_hills",
+      "name": "Darjeeling Hills + Adjacent Plains",
+      "n_seats": 9,
+      "n_personas": 20,
+      "tmc_2021": 0.2,
+      "bjp_2021": 0.65,
+      "left_2021": 0.1,
+      "others_2021": 0.05,
+      "sim_tmc": 0.2,
+      "sim_bjp": 0.3,
+      "sim_left": 0.45,
+      "sim_others": 0.05,
+      "swing_notes": "5-cornered Gorkha ethnic race; BJP dominates hills; plains seats partially competitive",
+      "key_seats": [
+        "Darjeeling",
+        "Kurseong",
+        "Kalimpong",
+        "Siliguri",
+        "Phansidewa"
+      ]
+    }
+  ],
+  "seat_prediction": {
+    "TMC": 140,
+    "BJP": 77,
+    "Left-Congress": 66,
+    "Others": 11
+  },
+  "cluster_breakdown": [
+    {
+      "id": "murshidabad",
+      "name": "Murshidabad Muslim Heartland",
+      "n_seats": 22,
+      "seats": {
+        "TMC": 13,
+        "BJP": 0,
+        "Left-Congress": 1,
+        "Others": 8
+      },
+      "projected_vote_shares": {
+        "TMC": 0.6,
+        "BJP": 0.0,
+        "Left-Congress": 0.05,
+        "Others": 0.35
+      },
+      "swing": {
+        "TMC": -0.3,
+        "BJP": -0.1,
+        "Left-Congress": 0.05,
+        "Others": 0.35
+      },
+      "marginal_seats": 1
+    },
+    {
+      "id": "malda",
+      "name": "Malda Muslim Plurality Belt",
+      "n_seats": 12,
+      "seats": {
+        "TMC": 6,
+        "BJP": 4,
+        "Left-Congress": 2,
+        "Others": 0
+      },
+      "projected_vote_shares": {
+        "TMC": 0.5,
+        "BJP": 0.35,
+        "Left-Congress": 0.15,
+        "Others": 0.0
+      },
+      "swing": {
+        "TMC": -0.17,
+        "BJP": 0.02,
+        "Left-Congress": 0.15,
+        "Others": 0.0
+      },
+      "marginal_seats": 1
+    },
+    {
+      "id": "matua_belt",
+      "name": "Matua Refugee Belt (Nadia + N24Pgs)",
+      "n_seats": 40,
+      "seats": {
+        "TMC": 30,
+        "BJP": 8,
+        "Left-Congress": 2,
+        "Others": 0
+      },
+      "projected_vote_shares": {
+        "TMC": 0.75,
+        "BJP": 0.2,
+        "Left-Congress": 0.05,
+        "Others": 0.0
+      },
+      "swing": {
+        "TMC": 0.1,
+        "BJP": -0.1,
+        "Left-Congress": 0.0,
+        "Others": 0.0
+      },
+      "marginal_seats": 1
+    },
+    {
+      "id": "jungle_mahal",
+      "name": "Jungle Mahal Tribal Belt",
+      "n_seats": 50,
+      "seats": {
+        "TMC": 25,
+        "BJP": 18,
+        "Left-Congress": 7,
+        "Others": 0
+      },
+      "projected_vote_shares": {
+        "TMC": 0.5,
+        "BJP": 0.35,
+        "Left-Congress": 0.15,
+        "Others": 0.0
+      },
+      "swing": {
+        "TMC": -0.28,
+        "BJP": 0.17,
+        "Left-Congress": 0.11,
+        "Others": 0.0
+      },
+      "marginal_seats": 1
+    },
+    {
+      "id": "north_bengal",
+      "name": "North Bengal Koch-Rajbongshi",
+      "n_seats": 30,
+      "seats": {
+        "TMC": 1,
+        "BJP": 20,
+        "Left-Congress": 9,
+        "Others": 0
+      },
+      "projected_vote_shares": {
+        "TMC": 0.05,
+        "BJP": 0.65,
+        "Left-Congress": 0.3,
+        "Others": 0.0
+      },
+      "swing": {
+        "TMC": -0.27,
+        "BJP": 0.05,
+        "Left-Congress": 0.22,
+        "Others": 0.0
+      },
+      "marginal_seats": 1
+    },
+    {
+      "id": "kolkata_urban",
+      "name": "Urban Kolkata",
+      "n_seats": 11,
+      "seats": {
+        "TMC": 5,
+        "BJP": 2,
+        "Left-Congress": 3,
+        "Others": 1
+      },
+      "projected_vote_shares": {
+        "TMC": 0.5,
+        "BJP": 0.15,
+        "Left-Congress": 0.3,
+        "Others": 0.05
+      },
+      "swing": {
+        "TMC": -0.4,
+        "BJP": 0.07,
+        "Left-Congress": 0.28,
+        "Others": 0.05
+      },
+      "marginal_seats": 1
+    },
+    {
+      "id": "south_rural",
+      "name": "South Bengal Rural TMC Stronghold",
+      "n_seats": 55,
+      "seats": {
+        "TMC": 41,
+        "BJP": 6,
+        "Left-Congress": 8,
+        "Others": 0
+      },
+      "projected_vote_shares": {
+        "TMC": 0.75,
+        "BJP": 0.1,
+        "Left-Congress": 0.15,
+        "Others": 0.0
+      },
+      "swing": {
+        "TMC": -0.02,
+        "BJP": -0.1,
+        "Left-Congress": 0.12,
+        "Others": 0.0
+      },
+      "marginal_seats": 1
+    },
+    {
+      "id": "burdwan_industrial",
+      "name": "Burdwan Industrial Zone",
+      "n_seats": 25,
+      "seats": {
+        "TMC": 3,
+        "BJP": 6,
+        "Left-Congress": 16,
+        "Others": 0
+      },
+      "projected_vote_shares": {
+        "TMC": 0.1,
+        "BJP": 0.25,
+        "Left-Congress": 0.65,
+        "Others": 0.0
+      },
+      "swing": {
+        "TMC": -0.62,
+        "BJP": 0.0,
+        "Left-Congress": 0.62,
+        "Others": 0.0
+      },
+      "marginal_seats": 1
+    },
+    {
+      "id": "presidency_suburbs",
+      "name": "Presidency Division Suburbs (Kingmaker Zone)",
+      "n_seats": 40,
+      "seats": {
+        "TMC": 14,
+        "BJP": 10,
+        "Left-Congress": 14,
+        "Others": 2
+      },
+      "projected_vote_shares": {
+        "TMC": 0.35,
+        "BJP": 0.25,
+        "Left-Congress": 0.35,
+        "Others": 0.05
+      },
+      "swing": {
+        "TMC": -0.35,
+        "BJP": 0.13,
+        "Left-Congress": 0.17,
+        "Others": 0.05
+      },
+      "marginal_seats": 40
+    },
+    {
+      "id": "darjeeling_hills",
+      "name": "Darjeeling Hills + Adjacent Plains",
+      "n_seats": 9,
+      "seats": {
+        "TMC": 2,
+        "BJP": 3,
+        "Left-Congress": 4,
+        "Others": 0
+      },
+      "projected_vote_shares": {
+        "TMC": 0.2,
+        "BJP": 0.3,
+        "Left-Congress": 0.45,
+        "Others": 0.05
+      },
+      "swing": {
+        "TMC": 0.0,
+        "BJP": -0.35,
+        "Left-Congress": 0.35,
+        "Others": 0.0
+      },
+      "marginal_seats": 1
+    }
+  ],
+  "swing_analysis": [
+    {
+      "cluster": "Murshidabad Muslim Heartland",
+      "tmc_swing": -0.3,
+      "bjp_swing": -0.1,
+      "left_swing": 0.05
+    },
+    {
+      "cluster": "Malda Muslim Plurality Belt",
+      "tmc_swing": -0.17,
+      "bjp_swing": 0.02,
+      "left_swing": 0.15
+    },
+    {
+      "cluster": "Matua Refugee Belt (Nadia + N24Pgs)",
+      "tmc_swing": 0.1,
+      "bjp_swing": -0.1,
+      "left_swing": 0.0
+    },
+    {
+      "cluster": "Jungle Mahal Tribal Belt",
+      "tmc_swing": -0.28,
+      "bjp_swing": 0.17,
+      "left_swing": 0.11
+    },
+    {
+      "cluster": "North Bengal Koch-Rajbongshi",
+      "tmc_swing": -0.27,
+      "bjp_swing": 0.05,
+      "left_swing": 0.22
+    },
+    {
+      "cluster": "Urban Kolkata",
+      "tmc_swing": -0.4,
+      "bjp_swing": 0.07,
+      "left_swing": 0.28
+    },
+    {
+      "cluster": "South Bengal Rural TMC Stronghold",
+      "tmc_swing": -0.02,
+      "bjp_swing": -0.1,
+      "left_swing": 0.12
+    },
+    {
+      "cluster": "Burdwan Industrial Zone",
+      "tmc_swing": -0.62,
+      "bjp_swing": 0.0,
+      "left_swing": 0.62
+    },
+    {
+      "cluster": "Presidency Division Suburbs (Kingmaker Zone)",
+      "tmc_swing": -0.35,
+      "bjp_swing": 0.13,
+      "left_swing": 0.17
+    },
+    {
+      "cluster": "Darjeeling Hills + Adjacent Plains",
+      "tmc_swing": 0.0,
+      "bjp_swing": -0.35,
+      "left_swing": 0.35
+    }
+  ],
+  "total_marginal_seats": 49,
+  "confidence_range_seats": 24,
+  "tmc_majority": false
+}
