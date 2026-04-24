@@ -58,32 +58,56 @@
 
 ---
 
-## Sprint 2 (Weeks 3–4) · "Consolidate IdentityConstructor"
+## Sprint 2 (Weeks 3–4) · "Consolidate AttributeFiller" [PRIORITY FLIPPED — April 24]
 
-**Goal:** Cut mean calls-per-persona from ~950 observed to <50. The single biggest cost lever.
+**Goal:** Cut mean calls-per-persona from ~155 observed (BRIEF-001 finding) to <20. The single biggest cost lever.
 
-### S2.1 — Identity synthesis consolidation
+**🚨 Priority flip rationale (from BRIEF-001 CSV trace, April 24):**
+- `attribute_fill`: **8,920 / 8,974 rows (99.4%)** — 154.7 calls/persona
+- `life_story`: 48 rows (1.6 calls/persona)
+- `identity_core / identity_behavior`: 0 rows — current architecture delegates to deterministic computers (`DerivedInsightsComputer`, `TendencyEstimator`). NOT the cost dragon we assumed.
+- Top 5 offending attributes each retry ~1.9× per persona: `personality_type`, `risk_tolerance`, `trust_orientation_primary`, `economic_constraint_level`, `life_stage_priority`
+
+**IdentityConstructor refactor demoted to S2.3** — real LLM calls for identity live in `narrative_generator.py` (uninstrumented) and possibly `cognition/*` modules.
+
+### S2.1 — AttributeFiller consolidation (was S2.2)
 - **Effort:** 5 days
-- **Files:** `Persona Generator/src/generation/identity_constructor.py` (heavy refactor)
-- **Current:** 8 sequential LLM calls
-- **Target:** 2 structured LLM calls using Anthropic JSON mode
+- **Files:** `Persona Generator/src/generation/attribute_filler.py` (heavy refactor)
+- **Current:** ~30 attributes × ~1.9 calls each = ~155 calls/persona
+- **Target:** 1–2 structured LLM calls generating all attributes at once
+  - Call 1: `AttributeBundle` — all 30 attributes in one JSON schema response
+  - Call 2 (retry only): partial retry for attributes that failed validation
+- **Tasks:**
+  - Define Pydantic `AttributeBundle` schema with all 30 attributes
+  - Consolidate per-attribute prompts into one structured prompt
+  - Hard cap at 2 total LLM calls/persona (bundle + 1 retry)
+  - Fallback: if bundle retry fails, use defaults from demographic anchor (no third call)
+  - Leverage BRIEF-002 `GateWaiver` mechanism for confidence penalty on fallbacks
+- **Exit:** Per-persona attribute fill drops from ~155 calls to ≤2. Cluster cost drops ~50×.
+
+### S2.2 — Instrument narrative_generator + cognition modules (new)
+- **Effort:** 2 days
+- **Files:** `Persona Generator/src/generation/narrative_generator.py`, `src/cognition/{perceive,reflect,decide}.py`
+- **Tasks:**
+  - Extend `PhaseType` literal to include `scenario_reflect` (currently missing)
+  - Wrap LLM calls in `narrative_generator.py:154,162,235` with CostTracer (phase=identity_core or identity_behavior based on context)
+  - Wrap `perceive.py:205,213,228,236` (phase=scenario_perceive)
+  - Wrap `reflect.py:254,262` (phase=scenario_reflect)
+  - Wrap `decide.py:481,489,503,511` (phase=scenario_decide)
+  - Also instrument: `signal_tagger.py`, `summarisation_engine.py`, `domain_extractor.py`, `sarvam/enrichment.py`
+- **Exit:** Full LLM topology visible in cost traces. No uninstrumented calls remain.
+
+### S2.3 — IdentityConstructor / narrative_generator consolidation (was S2.1)
+- **Effort:** 3 days (reduced — deterministic portion already done)
+- **Files:** `Persona Generator/src/generation/narrative_generator.py`
+- **Target:** Consolidate identity LLM calls into 2 structured calls using Anthropic JSON mode
   - Call 1: `IdentityCore` (demographics + life story → worldview, psych_insights, value_orientation)
   - Call 2: `IdentityBehavior` (core + context → behaviour_tendencies, trust_anchor, risk_appetite)
 - **Tasks:**
   - Define two Pydantic schemas for structured outputs
-  - Consolidate 8 prompts into 2 using explicit schema prompting
-  - Validation layer retries ONCE if schema doesn't parse (not 5+)
-  - Port 8 existing test fixtures to new 2-call structure
-- **Exit:** Per-persona identity cost drops from 8 calls to 2. Matua persona generation drops from ~40 min to ~10 min.
-
-### S2.2 — AttributeFiller retry audit
-- **Effort:** 2 days
-- **Files:** `src/generation/attribute_filler.py`
-- **Tasks:**
-  - Using S1.1 cost trace data, identify which attributes trigger retry loops
-  - Cap AttributeFiller retries at 2 per attribute (hard ceiling)
-  - Fallback: if attribute fails both attempts, use default from anchor
-- **Exit:** AttributeFiller can never be the source of a runaway run.
+  - Consolidate prompts using explicit schema prompting
+  - Validation layer retries ONCE if schema doesn't parse (hard cap)
+- **Exit:** Per-persona identity cost capped at 2 calls.
 
 ### S2.3 — Regression tests on all 10 WB clusters
 - **Effort:** 2 days
