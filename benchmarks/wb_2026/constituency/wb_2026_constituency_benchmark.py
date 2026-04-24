@@ -28,6 +28,7 @@ from __future__ import annotations
 import argparse
 import atexit
 import asyncio
+import csv
 import fcntl
 import json
 import logging
@@ -51,6 +52,7 @@ for p in [str(_POPSCALE_ROOT), str(_NIOBE_ROOT), str(_PG_ROOT)]:
 from niobe.study_request import NiobeStudyRequest   # noqa: E402
 from niobe.runner import run_niobe_study             # noqa: E402
 from .cluster_definitions import CLUSTERS, SWING_CLUSTER_IDS  # noqa: E402
+from .manifesto_contexts import BJP_MANIFESTO_CONTEXT, MANIFESTO_CONTEXTS, TMC_MANIFESTO_CONTEXT  # noqa: E402
 from .seat_model import compute_seat_predictions, print_seat_report  # noqa: E402
 
 N_ENSEMBLE_RUNS = 3   # Independent runs averaged for swing clusters
@@ -147,9 +149,14 @@ def _extract_guardrails(result) -> tuple[list[dict], float]:
     return waivers, penalty
 
 
-def build_cluster_request(cluster: dict) -> NiobeStudyRequest:
+def build_cluster_request(
+    cluster: dict,
+    manifesto: str | None = None,
+) -> NiobeStudyRequest:
     """Build a NiobeStudyRequest for a single cluster."""
     full_context = BASE_SCENARIO_CONTEXT + "\n\n" + cluster["context_note"]
+    if manifesto is not None:
+        full_context = full_context + "\n\n" + MANIFESTO_CONTEXTS[manifesto]
     budget_cap = max(3.0, round(cluster["n_personas"] * 0.50, 2))
 
     return NiobeStudyRequest(
@@ -217,11 +224,11 @@ def extract_vote_shares(result) -> dict[str, float]:
     return {p: round(c / n_total, 4) for p, c in counts.items()}
 
 
-async def run_cluster(cluster: dict) -> dict:
+async def run_cluster(cluster: dict, manifesto: str | None = None) -> dict:
     """Run simulation for a single cluster. Returns result dict."""
     logger.info("Running cluster: %s (%d personas, %d seats)",
                 cluster["name"], cluster["n_personas"], cluster["n_seats"])
-    request = build_cluster_request(cluster)
+    request = build_cluster_request(cluster, manifesto=manifesto)
     result = await run_niobe_study(request)
     shares = extract_vote_shares(result)
     waivers, penalty = _extract_guardrails(result)
@@ -251,7 +258,11 @@ async def run_cluster(cluster: dict) -> dict:
     }
 
 
-async def run_cluster_ensemble(cluster: dict, n_runs: int = N_ENSEMBLE_RUNS) -> dict:
+async def run_cluster_ensemble(
+    cluster: dict,
+    n_runs: int = N_ENSEMBLE_RUNS,
+    manifesto: str | None = None,
+) -> dict:
     """Run a swing cluster n_runs times and average vote shares for stability.
 
     Reduces random sampling noise by √n_runs without changing pool calibration.
@@ -266,7 +277,7 @@ async def run_cluster_ensemble(cluster: dict, n_runs: int = N_ENSEMBLE_RUNS) -> 
 
     for i in range(n_runs):
         logger.info("  [%s] ensemble run %d/%d", cluster["id"], i + 1, n_runs)
-        request = build_cluster_request(cluster)
+        request = build_cluster_request(cluster, manifesto=manifesto)
         result = await run_niobe_study(request)
         shares = extract_vote_shares(result)
         waivers, penalty = _extract_guardrails(result)
@@ -310,29 +321,61 @@ async def run_cluster_ensemble(cluster: dict, n_runs: int = N_ENSEMBLE_RUNS) -> 
     }
 
 
-async def run_all_clusters(cluster_ids: list[str] | None = None) -> dict:
-    """Run all (or selected) clusters and produce consolidated results."""
+async def run_all_clusters(
+    cluster_ids: list[str] | None = None,
+    manifesto: str | None = None,
+    resume_from: Path | None = None,
+) -> dict:
+    """Run all (or selected) clusters and produce consolidated results.
+
+    Args:
+        cluster_ids: Restrict to these cluster IDs. None = all clusters.
+        manifesto:   Manifesto context injection mode (tmc|bjp|both|None).
+        resume_from: Path to a .partial.json from an interrupted run. Completed
+                     clusters are skipped and their results seeded into this run.
+                     The original run_id is preserved so the partial file is
+                     updated in-place.
+    """
     target_clusters = CLUSTERS
     if cluster_ids:
         target_clusters = [c for c in CLUSTERS if c["id"] in cluster_ids]
         if not target_clusters:
             raise ValueError(f"Unknown cluster IDs: {cluster_ids}")
 
-    run_id = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+    # Resume logic: load completed clusters from a prior partial file.
+    if resume_from is not None:
+        with resume_from.open() as _f:
+            _partial_data = json.load(_f)
+        run_id = _partial_data["run_id"]
+        cluster_results = list(_partial_data.get("cluster_results", []))
+        already_done = {r["id"] for r in cluster_results}
+        logger.info(
+            "Resuming run %s — %d clusters already completed: %s",
+            run_id, len(already_done), ", ".join(sorted(already_done)),
+        )
+    else:
+        run_id = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+        cluster_results = []
+        already_done: set[str] = set()
+
     partial_path = Path(os.getenv("SIMULATTE_PARTIAL_DIR", "/tmp/wb_reruns")) / f"{run_id}.partial.json"
     partial_path.parent.mkdir(parents=True, exist_ok=True)
-    logger.info("Starting WB 2026 constituency run | id=%s | clusters=%d | total_personas=%d",
-                run_id, len(target_clusters),
-                sum(c["n_personas"] for c in target_clusters))
+
+    remaining = [c for c in target_clusters if c["id"] not in already_done]
+    logger.info(
+        "%s WB 2026 constituency run | id=%s | clusters=%d/%d | total_personas=%d",
+        "Resuming" if resume_from else "Starting",
+        run_id, len(remaining), len(target_clusters),
+        sum(c["n_personas"] for c in remaining),
+    )
 
     # Run clusters sequentially to manage API rate limits.
     # Swing clusters use ensemble averaging (3 independent runs).
-    cluster_results = []
-    for cluster in target_clusters:
+    for cluster in remaining:
         if cluster["id"] in SWING_CLUSTER_IDS:
-            cr = await run_cluster_ensemble(cluster, n_runs=N_ENSEMBLE_RUNS)
+            cr = await run_cluster_ensemble(cluster, n_runs=N_ENSEMBLE_RUNS, manifesto=manifesto)
         else:
-            cr = await run_cluster(cluster)
+            cr = await run_cluster(cluster, manifesto=manifesto)
         cluster_results.append(cr)
         _write_partial_results(
             partial_path,
@@ -439,6 +482,196 @@ def _write_partial_results(
     partial_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
 
+def _estimate_manifesto_run_cost(swing_clusters: list[dict]) -> float:
+    """Very rough estimate: n_personas × $0.10 per persona × ensemble_runs."""
+    total = 0.0
+    for c in swing_clusters:
+        runs = N_ENSEMBLE_RUNS
+        total += c["n_personas"] * 0.10 * runs
+    return total
+
+
+def _load_baseline_results(path: Path | None) -> dict | None:
+    if path is None:
+        return None
+    with path.open(encoding="utf-8") as f:
+        return json.load(f)
+
+
+def _cluster_vote_shares(cluster_row: dict) -> dict[str, float]:
+    return {
+        "TMC": float(cluster_row["sim_tmc"]),
+        "BJP": float(cluster_row["sim_bjp"]),
+        "Left-Congress": float(cluster_row["sim_left"]),
+        "Others": float(cluster_row["sim_others"]),
+    }
+
+
+def _build_sensitivity_payload(
+    *,
+    run_results: dict,
+    manifesto: str,
+    baseline_file: Path | None,
+) -> dict:
+    baseline = _load_baseline_results(baseline_file)
+    baseline_clusters: dict[str, dict] = {}
+    baseline_seats: dict[str, int] | None = None
+    if baseline is not None:
+        for row in baseline.get("cluster_results", []):
+            baseline_clusters[str(row["id"])] = row
+        baseline_seats = {
+            "TMC": int(baseline["seat_prediction"]["TMC"]),
+            "BJP": int(baseline["seat_prediction"]["BJP"]),
+            "Left-Congress": int(baseline["seat_prediction"]["Left-Congress"]),
+            "Others": int(baseline["seat_prediction"]["Others"]),
+        }
+
+    clusters_payload: dict[str, dict] = {}
+    for row in run_results["cluster_results"]:
+        cluster_id = str(row["id"])
+        vote_shares = _cluster_vote_shares(row)
+        baseline_vote_shares = None
+        delta = None
+        if cluster_id in baseline_clusters:
+            baseline_vote_shares = _cluster_vote_shares(baseline_clusters[cluster_id])
+            delta = {
+                party: round(vote_shares[party] - baseline_vote_shares[party], 4)
+                for party in vote_shares
+            }
+        clusters_payload[cluster_id] = {
+            "vote_shares": vote_shares,
+            "baseline_vote_shares": baseline_vote_shares,
+            "delta": delta,
+            "n_personas": int(row["n_personas"]),
+            "ensemble_runs": int(row.get("ensemble_runs", 1)),
+            "confidence_penalty": float(row.get("confidence_penalty", 0.0) or 0.0),
+            "gate_waivers": len(row.get("gate_waivers") or []),
+        }
+
+    with_manifesto = {
+        "TMC": int(run_results["seat_prediction"]["TMC"]),
+        "BJP": int(run_results["seat_prediction"]["BJP"]),
+        "Left-Congress": int(run_results["seat_prediction"]["Left-Congress"]),
+        "Others": int(run_results["seat_prediction"]["Others"]),
+    }
+    seat_delta = None
+    if baseline_seats is not None:
+        seat_delta = {
+            party: with_manifesto[party] - baseline_seats[party]
+            for party in with_manifesto
+        }
+
+    total_cost_usd = round(
+        sum(float(row["n_personas"]) * 0.11 for row in run_results["cluster_results"]),
+        2,
+    )
+
+    return {
+        "run_id": run_results["run_id"],
+        "manifesto": manifesto,
+        "baseline_file": str(baseline_file) if baseline_file else None,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "clusters": clusters_payload,
+        "seat_projection": {
+            "with_manifesto": with_manifesto,
+            "baseline": baseline_seats,
+            "seat_delta": seat_delta,
+        },
+        "total_cost_usd": total_cost_usd,
+    }
+
+
+def _write_sensitivity_outputs(payload: dict) -> tuple[Path, Path]:
+    out_dir = _WB2026_DIR / "results" / "sensitivity"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    run_id = payload["run_id"]
+    json_path = out_dir / f"sensitivity_{run_id}.json"
+    csv_path = out_dir / f"sensitivity_{run_id}.csv"
+
+    with json_path.open("w", encoding="utf-8") as f:
+        json.dump(payload, f, indent=2)
+
+    with csv_path.open("w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(
+            f,
+            fieldnames=[
+                "cluster_id",
+                "party",
+                "manifesto_vote_share",
+                "baseline_vote_share",
+                "delta_pp",
+            ],
+        )
+        writer.writeheader()
+        for cluster_id, cluster_data in payload["clusters"].items():
+            manifesto_vote = cluster_data["vote_shares"]
+            baseline_vote = cluster_data["baseline_vote_shares"]
+            for party in ("TMC", "BJP", "Left-Congress", "Others"):
+                base_value = baseline_vote[party] if baseline_vote else None
+                delta_pp = None
+                if base_value is not None:
+                    delta_pp = round((manifesto_vote[party] - base_value) * 100, 2)
+                writer.writerow(
+                    {
+                        "cluster_id": cluster_id,
+                        "party": party,
+                        "manifesto_vote_share": manifesto_vote[party],
+                        "baseline_vote_share": base_value,
+                        "delta_pp": delta_pp,
+                    }
+                )
+
+    return json_path, csv_path
+
+
+def _print_sensitivity_table(payload: dict) -> None:
+    print(f"\nWB 2026 MANIFESTO SENSITIVITY MATRIX ({payload['manifesto']} manifestos injected)")
+    print("=" * 64)
+    print(f"{'Cluster':<22} {'TMC':>6} {'BJP':>6} {'L-C':>6} {'Other':>7}  | vs baseline")
+    for cluster_id, cluster_data in payload["clusters"].items():
+        vote = cluster_data["vote_shares"]
+        delta = cluster_data["delta"]
+        if delta is None:
+            delta_text = "(no baseline)"
+        else:
+            delta_text = (
+                f"TMC {delta['TMC'] * 100:+.1f}pp "
+                f"BJP {delta['BJP'] * 100:+.1f}pp"
+            )
+        print(
+            f"{cluster_id:<22} "
+            f"{vote['TMC'] * 100:>5.1f}% "
+            f"{vote['BJP'] * 100:>5.1f}% "
+            f"{vote['Left-Congress'] * 100:>5.1f}% "
+            f"{vote['Others'] * 100:>6.1f}%"
+            f"  | {delta_text}"
+        )
+    print("=" * 64)
+    seat = payload["seat_projection"]
+    with_manifesto = seat["with_manifesto"]
+    print(
+        "SEAT PROJECTION (manifesto): "
+        f"TMC {with_manifesto['TMC']} | BJP {with_manifesto['BJP']} | "
+        f"L-C {with_manifesto['Left-Congress']} | Other {with_manifesto['Others']}"
+    )
+    if seat["baseline"] is None:
+        print("SEAT PROJECTION (baseline):  (no baseline)")
+        print("SEAT DELTA:                  (no baseline)")
+    else:
+        baseline = seat["baseline"]
+        delta = seat["seat_delta"]
+        print(
+            "SEAT PROJECTION (baseline):  "
+            f"TMC {baseline['TMC']} | BJP {baseline['BJP']} | "
+            f"L-C {baseline['Left-Congress']} | Other {baseline['Others']}"
+        )
+        print(
+            "SEAT DELTA:                  "
+            f"TMC {delta['TMC']:+} | BJP {delta['BJP']:+} | "
+            f"L-C {delta['Left-Congress']:+} | Other {delta['Others']:+}"
+        )
+
+
 def print_cluster_vote_shares(cluster_results: list[dict]) -> None:
     """Print cluster-level vote share table."""
     print("\n" + "═" * 90)
@@ -501,6 +734,42 @@ def parse_args() -> argparse.Namespace:
                    help="Re-run seat model on existing results file")
     p.add_argument("--cost-trace", type=str, default=None,
                    help="Dump per-call cost CSV to this path at end of run")
+    p.add_argument(
+        "--manifesto",
+        type=str,
+        choices=["tmc", "bjp", "both"],
+        default=None,
+        metavar="PARTY",
+        help="Inject party manifesto context into scenario. Choices: tmc | bjp | both. "
+             "Only runs SWING_CLUSTER_IDS. Required for sensitivity study.",
+    )
+    p.add_argument(
+        "--budget-ceiling",
+        type=float,
+        default=None,
+        metavar="USD",
+        help="Hard total budget ceiling across all clusters in this run (USD). "
+             "Run aborts if projected cost exceeds ceiling before starting. "
+             "Default: no ceiling (per-cluster caps still apply).",
+    )
+    p.add_argument(
+        "--sensitivity-baseline",
+        type=str,
+        default=None,
+        metavar="PATH",
+        help="Path to a prior results JSON file to use as baseline for sensitivity delta "
+             "computation. If omitted, no delta is computed (absolute results only).",
+    )
+    p.add_argument(
+        "--resume-from",
+        type=str,
+        default=None,
+        metavar="PATH",
+        help="Path to a .partial.json file from a previous interrupted run. "
+             "Clusters already completed in that file are skipped; the original "
+             "run_id is preserved so the partial file is updated in-place. "
+             "Compatible with --manifesto and --sensitivity-baseline.",
+    )
     return p.parse_args()
 
 
@@ -524,6 +793,17 @@ async def main() -> None:
     signal.signal(signal.SIGTERM, _raise_interrupt)
 
     try:
+        if args.manifesto and (args.results_file or args.seat_model_only):
+            print("ERROR: --manifesto cannot be combined with --results-file or --seat-model-only.")
+            raise SystemExit(1)
+
+        if args.manifesto and args.cluster and args.cluster not in SWING_CLUSTER_IDS:
+            print(
+                f"ERROR: --manifesto mode supports only swing clusters. "
+                f"'{args.cluster}' is not in SWING_CLUSTER_IDS."
+            )
+            raise SystemExit(1)
+
         if args.results_file:
             load_and_display(Path(args.results_file))
             return
@@ -533,6 +813,36 @@ async def main() -> None:
             return
 
         if args.dry_run:
+            if args.manifesto:
+                selected_swing_clusters = [c for c in CLUSTERS if c["id"] in SWING_CLUSTER_IDS]
+                if args.cluster:
+                    selected_swing_clusters = [c for c in selected_swing_clusters if c["id"] == args.cluster]
+                estimate = _estimate_manifesto_run_cost(selected_swing_clusters)
+                print("\n── WB 2026 MANIFESTO SENSITIVITY — DRY RUN ──")
+                print(f"  Manifesto mode: {args.manifesto}")
+                print(f"  Swing clusters to run: {len(selected_swing_clusters)}")
+                for c in selected_swing_clusters:
+                    print(f"    - {c['id']} ({c['n_personas']} personas × {N_ENSEMBLE_RUNS} ensemble)")
+                print(f"  Context length (tmc):  {len(TMC_MANIFESTO_CONTEXT)} chars")
+                print(f"  Context length (bjp):  {len(BJP_MANIFESTO_CONTEXT)} chars")
+                print(f"  Context length (both): {len(MANIFESTO_CONTEXTS['both'])} chars")
+                if selected_swing_clusters:
+                    preview_cluster = selected_swing_clusters[0]
+                    injected = MANIFESTO_CONTEXTS[args.manifesto]
+                    full_context = BASE_SCENARIO_CONTEXT + "\n\n" + preview_cluster["context_note"] + "\n\n" + injected
+                    preview = full_context[-len(injected):][:200].replace("\n", " ")
+                    print(f"  Injected context preview ({preview_cluster['id']}): {preview}")
+                print(f"  Estimated manifesto run cost: ${estimate:.2f}")
+                if args.budget_ceiling is not None:
+                    if estimate > args.budget_ceiling:
+                        print(
+                            f"ERROR: Estimated cost ${estimate:.0f} exceeds --budget-ceiling "
+                            f"${args.budget_ceiling:.0f}. Aborting."
+                        )
+                        raise SystemExit(1)
+                    print(f"Would pass budget ceiling: ${args.budget_ceiling:.0f}")
+                return
+
             print("\n── WB 2026 Constituency Benchmark B-WB-7 — DRY RUN ──")
             print(f"  Clusters: {len(CLUSTERS)}")
             swing = [c for c in CLUSTERS if c["id"] in SWING_CLUSTER_IDS]
@@ -560,7 +870,51 @@ async def main() -> None:
         acquire_pid_lock(lock_cluster_id)
 
         cluster_ids = [args.cluster] if args.cluster else None
-        results = await run_all_clusters(cluster_ids)
+        if args.manifesto and cluster_ids is None:
+            cluster_ids = sorted(SWING_CLUSTER_IDS)
+
+        # --resume-from: validate and extract already-completed cluster IDs
+        resume_from: Path | None = None
+        _already_done: set[str] = set()
+        if args.resume_from:
+            resume_from = Path(args.resume_from)
+            if not resume_from.exists():
+                print(f"ERROR: --resume-from file not found: {resume_from}")
+                raise SystemExit(1)
+            with resume_from.open() as _rf:
+                _pdata = json.load(_rf)
+            if not _pdata.get("is_partial"):
+                print(
+                    f"ERROR: --resume-from file has is_partial=false — this run already "
+                    f"completed. Use --results-file to display it instead."
+                )
+                raise SystemExit(1)
+            _already_done = {r["id"] for r in _pdata.get("cluster_results", [])}
+            print(
+                f"Resuming run {_pdata['run_id']} — "
+                f"skipping {len(_already_done)} completed cluster(s): "
+                f"{', '.join(sorted(_already_done))}"
+            )
+
+        if args.manifesto:
+            # Exclude already-completed clusters from cost estimate when resuming
+            run_clusters = [
+                c for c in CLUSTERS
+                if c["id"] in set(cluster_ids or []) and c["id"] not in _already_done
+            ]
+            estimate = _estimate_manifesto_run_cost(run_clusters)
+            print(f"Estimated manifesto run cost: ${estimate:.2f}"
+                  + (" (remaining clusters only)" if _already_done else ""))
+            if args.budget_ceiling is not None and estimate > args.budget_ceiling:
+                print(
+                    f"ERROR: Estimated cost ${estimate:.0f} exceeds --budget-ceiling "
+                    f"${args.budget_ceiling:.0f}. Aborting."
+                )
+                raise SystemExit(1)
+
+        results = await run_all_clusters(
+            cluster_ids, manifesto=args.manifesto, resume_from=resume_from
+        )
 
         print_cluster_vote_shares(results["cluster_results"])
 
@@ -575,6 +929,18 @@ async def main() -> None:
         output_dir = _BENCH_DIR / "results"
         saved = save_results(results, output_dir)
         print(f"\nResults saved: {saved}")
+
+        if args.manifesto:
+            baseline_path = Path(args.sensitivity_baseline) if args.sensitivity_baseline else None
+            payload = _build_sensitivity_payload(
+                run_results=results,
+                manifesto=args.manifesto,
+                baseline_file=baseline_path,
+            )
+            json_path, csv_path = _write_sensitivity_outputs(payload)
+            _print_sensitivity_table(payload)
+            print(f"\nSensitivity JSON saved: {json_path}")
+            print(f"Sensitivity CSV saved:  {csv_path}")
     finally:
         try:
             _dump_cost_trace()
