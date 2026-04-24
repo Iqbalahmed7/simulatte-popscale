@@ -26,9 +26,13 @@ USAGE
 from __future__ import annotations
 
 import argparse
+import atexit
 import asyncio
+import fcntl
 import json
 import logging
+import os
+import signal
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -57,6 +61,7 @@ logging.basicConfig(
     datefmt="%H:%M:%S",
 )
 logger = logging.getLogger("wb_2026_constituency")
+PID_DIR = Path("/tmp/simulatte_runs")
 
 # ── Shared scenario options and context ───────────────────────────────────────
 SCENARIO_OPTIONS = [
@@ -88,6 +93,58 @@ disproportionately Muslim (65% of deletions despite 27% population share) and Ma
 families in Nadia/N24Pgs. AIMIM-AJUP alliance (182 seats) led by ex-TMC leader Humayun Kabir \
 threatens Muslim vote fragmentation. \
 """
+
+
+def acquire_pid_lock(cluster_id: str) -> Path:
+    """Acquire per-cluster PID lock; reject duplicate active runs."""
+    PID_DIR.mkdir(parents=True, exist_ok=True)
+    pid_path = PID_DIR / f"{cluster_id}.pid"
+
+    if pid_path.exists():
+        try:
+            existing_pid = int(pid_path.read_text().strip())
+            os.kill(existing_pid, 0)
+            print(f"ERROR: Cluster '{cluster_id}' already running as PID {existing_pid}")
+            print(f"Kill it first: kill -9 {existing_pid}")
+            print(
+                "Or clean up: python3 popscale/scripts/kill_prior_runs.py --cluster "
+                f"{cluster_id}"
+            )
+            raise SystemExit(1)
+        except ProcessLookupError:
+            pass
+        except ValueError:
+            pass
+
+    pid_path.write_text(str(os.getpid()), encoding="utf-8")
+    lock_file = open(pid_path, "r", encoding="utf-8")
+    try:
+        fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except OSError:
+        lock_file.close()
+        raise SystemExit(1)
+
+    def cleanup() -> None:
+        try:
+            if pid_path.exists() and pid_path.read_text().strip() == str(os.getpid()):
+                pid_path.unlink()
+        except Exception:
+            pass
+        try:
+            lock_file.close()
+        except Exception:
+            pass
+
+    atexit.register(cleanup)
+    signal.signal(signal.SIGTERM, lambda *_: (cleanup(), sys.exit(1)))
+    signal.signal(signal.SIGINT, lambda *_: (cleanup(), sys.exit(130)))
+    return pid_path
+
+
+def _extract_guardrails(result) -> tuple[list[dict], float]:
+    waivers = list(getattr(result.cohort, "gate_waivers", []) or [])
+    penalty = float(getattr(result.cohort, "confidence_penalty", 0.0) or 0.0)
+    return waivers, penalty
 
 
 def build_cluster_request(cluster: dict) -> NiobeStudyRequest:
@@ -167,6 +224,7 @@ async def run_cluster(cluster: dict) -> dict:
     request = build_cluster_request(cluster)
     result = await run_niobe_study(request)
     shares = extract_vote_shares(result)
+    waivers, penalty = _extract_guardrails(result)
     logger.info("  %s → TMC %.1f%% BJP %.1f%% Left %.1f%% Other %.1f%%",
                 cluster["id"],
                 shares["TMC"] * 100, shares["BJP"] * 100,
@@ -188,6 +246,8 @@ async def run_cluster(cluster: dict) -> dict:
         "key_seats":   cluster["key_seats"],
         "marginal_seats_2021": cluster.get("marginal_seats_2021"),
         "ensemble_runs": 1,
+        "gate_waivers": waivers,
+        "confidence_penalty": penalty,
     }
 
 
@@ -201,12 +261,17 @@ async def run_cluster_ensemble(cluster: dict, n_runs: int = N_ENSEMBLE_RUNS) -> 
                 n_runs, cluster["name"], cluster["n_personas"], cluster["n_seats"])
     parties = ["TMC", "BJP", "Left-Congress", "Others"]
     all_shares: list[dict[str, float]] = []
+    all_waivers: list[dict] = []
+    max_penalty = 0.0
 
     for i in range(n_runs):
         logger.info("  [%s] ensemble run %d/%d", cluster["id"], i + 1, n_runs)
         request = build_cluster_request(cluster)
         result = await run_niobe_study(request)
         shares = extract_vote_shares(result)
+        waivers, penalty = _extract_guardrails(result)
+        all_waivers.extend(waivers)
+        max_penalty = max(max_penalty, penalty)
         all_shares.append(shares)
         logger.info("    run %d → TMC %.1f%% BJP %.1f%% Left %.1f%% Other %.1f%%",
                     i + 1, shares["TMC"] * 100, shares["BJP"] * 100,
@@ -240,6 +305,8 @@ async def run_cluster_ensemble(cluster: dict, n_runs: int = N_ENSEMBLE_RUNS) -> 
         "marginal_seats_2021": cluster.get("marginal_seats_2021"),
         "ensemble_runs": n_runs,
         "ensemble_detail": all_shares,
+        "gate_waivers": all_waivers,
+        "confidence_penalty": max_penalty,
     }
 
 
@@ -252,6 +319,8 @@ async def run_all_clusters(cluster_ids: list[str] | None = None) -> dict:
             raise ValueError(f"Unknown cluster IDs: {cluster_ids}")
 
     run_id = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+    partial_path = Path(os.getenv("SIMULATTE_PARTIAL_DIR", "/tmp/wb_reruns")) / f"{run_id}.partial.json"
+    partial_path.parent.mkdir(parents=True, exist_ok=True)
     logger.info("Starting WB 2026 constituency run | id=%s | clusters=%d | total_personas=%d",
                 run_id, len(target_clusters),
                 sum(c["n_personas"] for c in target_clusters))
@@ -265,8 +334,28 @@ async def run_all_clusters(cluster_ids: list[str] | None = None) -> dict:
         else:
             cr = await run_cluster(cluster)
         cluster_results.append(cr)
+        _write_partial_results(
+            partial_path,
+            run_id=run_id,
+            cluster_results=cluster_results,
+            status="in_progress",
+            is_partial=True,
+        )
 
-    seat_result = compute_seat_predictions(cluster_results, use_cube_law=True)
+    confidence_penalty = _aggregate_confidence_penalty(cluster_results)
+    seat_result = compute_seat_predictions(
+        cluster_results,
+        use_cube_law=True,
+        confidence_penalty=confidence_penalty,
+        is_partial=False,
+    )
+    _write_partial_results(
+        partial_path,
+        run_id=run_id,
+        cluster_results=cluster_results,
+        status="completed",
+        is_partial=False,
+    )
 
     return {
         "run_id": run_id,
@@ -280,8 +369,74 @@ async def run_all_clusters(cluster_ids: list[str] | None = None) -> dict:
         "swing_analysis": seat_result["swing_analysis"],
         "total_marginal_seats": seat_result["total_marginal_seats"],
         "confidence_range_seats": seat_result["confidence_range_seats"],
+        "schema_version": seat_result["schema_version"],
+        "is_partial": seat_result["is_partial"],
+        "gate_waivers": seat_result["gate_waivers"],
+        "confidence_penalty": confidence_penalty,
         "tmc_majority": seat_result["tmc_majority"],
     }
+
+
+def _aggregate_confidence_penalty(cluster_results: list[dict]) -> float:
+    total = 0.0
+    for cluster in cluster_results:
+        waivers = cluster.get("gate_waivers") or []
+        if waivers:
+            for waiver in waivers:
+                try:
+                    total += float(waiver.get("confidence_penalty", 0.1))
+                except Exception:
+                    total += 0.1
+        else:
+            total += float(cluster.get("confidence_penalty", 0.0) or 0.0)
+    return min(0.5, total)
+
+
+def _write_partial_results(
+    partial_path: Path,
+    *,
+    run_id: str,
+    cluster_results: list[dict],
+    status: str,
+    is_partial: bool,
+) -> None:
+    confidence_penalty = _aggregate_confidence_penalty(cluster_results)
+    seat_result = compute_seat_predictions(
+        cluster_results,
+        use_cube_law=True,
+        confidence_penalty=confidence_penalty,
+        is_partial=is_partial,
+    ) if cluster_results else {
+        "schema_version": "2.0" if is_partial else "1.0",
+        "seat_predictions": {"TMC": 0, "BJP": 0, "Left-Congress": 0, "Others": 0},
+        "cluster_breakdown": [],
+        "swing_analysis": [],
+        "total_marginal_seats": 0,
+        "confidence_range_seats": 5,
+        "tmc_majority": False,
+        "is_partial": is_partial,
+        "gate_waivers": [],
+    }
+
+    payload = {
+        "run_id": run_id,
+        "status": status,
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+        "n_clusters": len(cluster_results),
+        "total_personas": sum(c["n_personas"] for c in cluster_results),
+        "cluster_results": cluster_results,
+        "schema_version": seat_result["schema_version"],
+        "is_partial": seat_result["is_partial"],
+        "gate_waivers": seat_result["gate_waivers"],
+        "confidence_penalty": confidence_penalty,
+        "seat_prediction": seat_result["seat_predictions"],
+        "cluster_breakdown": seat_result["cluster_breakdown"],
+        "swing_analysis": seat_result["swing_analysis"],
+        "total_marginal_seats": seat_result["total_marginal_seats"],
+        "confidence_range_seats": seat_result["confidence_range_seats"],
+        "tmc_majority": seat_result["tmc_majority"],
+    }
+    partial_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
 
 def print_cluster_vote_shares(cluster_results: list[dict]) -> None:
@@ -324,7 +479,11 @@ def load_and_display(results_file: Path) -> None:
     seat_input = []
     for cr in results["cluster_results"]:
         seat_input.append({**cr})
-    seat_result = compute_seat_predictions(seat_input)
+    seat_result = compute_seat_predictions(
+        seat_input,
+        confidence_penalty=float(results.get("confidence_penalty", 0.0) or 0.0),
+        is_partial=bool(results.get("is_partial", False)),
+    )
     print_seat_report(seat_result)
 
 
@@ -340,56 +499,88 @@ def parse_args() -> argparse.Namespace:
                    help="Load existing JSON results file")
     p.add_argument("--seat-model-only", type=str, metavar="PATH",
                    help="Re-run seat model on existing results file")
+    p.add_argument("--cost-trace", type=str, default=None,
+                   help="Dump per-call cost CSV to this path at end of run")
     return p.parse_args()
 
 
 async def main() -> None:
     args = parse_args()
+    prior_sigint = signal.getsignal(signal.SIGINT)
+    prior_sigterm = signal.getsignal(signal.SIGTERM)
 
-    if args.results_file:
-        load_and_display(Path(args.results_file))
-        return
+    def _raise_interrupt(signum, _frame) -> None:
+        raise KeyboardInterrupt(f"received signal {signum}")
 
-    if args.seat_model_only:
-        load_and_display(Path(args.seat_model_only))
-        return
+    def _dump_cost_trace() -> None:
+        if not args.cost_trace:
+            return
+        from src.observability.cost_tracer import CostTracer
 
-    if args.dry_run:
-        print("\n── WB 2026 Constituency Benchmark B-WB-7 — DRY RUN ──")
-        print(f"  Clusters: {len(CLUSTERS)}")
-        swing = [c for c in CLUSTERS if c["id"] in SWING_CLUSTER_IDS]
-        stable = [c for c in CLUSTERS if c["id"] not in SWING_CLUSTER_IDS]
-        swing_runs = sum(c["n_personas"] * N_ENSEMBLE_RUNS for c in swing)
-        stable_runs = sum(c["n_personas"] for c in stable)
-        total_runs = swing_runs + stable_runs
-        print(f"  Swing clusters (×{N_ENSEMBLE_RUNS} ensemble): {len(swing)} clusters, "
-              f"{swing_runs} persona-runs")
-        print(f"  Stable clusters (×1):          {len(stable)} clusters, "
-              f"{stable_runs} persona-runs")
-        print(f"  Total persona-runs: {total_runs}")
-        print(f"  Total seats: {sum(c['n_seats'] for c in CLUSTERS)}")
-        print(f"  Seat model: cube-law FPTP")
-        print(f"  Est. cost: ~${total_runs * 0.07:.0f}–${total_runs * 0.11:.0f}")
-        print()
-        for c in CLUSTERS:
-            ens = f"×{N_ENSEMBLE_RUNS} ensemble" if c["id"] in SWING_CLUSTER_IDS else "×1        "
-            print(f"  [{c['id']:25s}] {c['n_seats']:3d} seats | {c['n_personas']:2d} personas {ens} | "
-                  f"marginal={c.get('marginal_seats_2021','?'):2} | "
-                  f"2021: TMC {c['tmc_2021']:.0%} BJP {c['bjp_2021']:.0%}")
-        return
+        CostTracer.dump_csv(Path(args.cost_trace))
+        print(f"✓ Cost trace written to {args.cost_trace}")
 
-    cluster_ids = [args.cluster] if args.cluster else None
-    results = await run_all_clusters(cluster_ids)
+    signal.signal(signal.SIGINT, _raise_interrupt)
+    signal.signal(signal.SIGTERM, _raise_interrupt)
 
-    print_cluster_vote_shares(results["cluster_results"])
+    try:
+        if args.results_file:
+            load_and_display(Path(args.results_file))
+            return
 
-    seat_input = results["cluster_results"]
-    seat_result = compute_seat_predictions(seat_input)
-    print_seat_report(seat_result)
+        if args.seat_model_only:
+            load_and_display(Path(args.seat_model_only))
+            return
 
-    output_dir = _BENCH_DIR / "results"
-    saved = save_results(results, output_dir)
-    print(f"\nResults saved: {saved}")
+        if args.dry_run:
+            print("\n── WB 2026 Constituency Benchmark B-WB-7 — DRY RUN ──")
+            print(f"  Clusters: {len(CLUSTERS)}")
+            swing = [c for c in CLUSTERS if c["id"] in SWING_CLUSTER_IDS]
+            stable = [c for c in CLUSTERS if c["id"] not in SWING_CLUSTER_IDS]
+            swing_runs = sum(c["n_personas"] * N_ENSEMBLE_RUNS for c in swing)
+            stable_runs = sum(c["n_personas"] for c in stable)
+            total_runs = swing_runs + stable_runs
+            print(f"  Swing clusters (×{N_ENSEMBLE_RUNS} ensemble): {len(swing)} clusters, "
+                  f"{swing_runs} persona-runs")
+            print(f"  Stable clusters (×1):          {len(stable)} clusters, "
+                  f"{stable_runs} persona-runs")
+            print(f"  Total persona-runs: {total_runs}")
+            print(f"  Total seats: {sum(c['n_seats'] for c in CLUSTERS)}")
+            print(f"  Seat model: cube-law FPTP")
+            print(f"  Est. cost: ~${total_runs * 0.07:.0f}–${total_runs * 0.11:.0f}")
+            print()
+            for c in CLUSTERS:
+                ens = f"×{N_ENSEMBLE_RUNS} ensemble" if c["id"] in SWING_CLUSTER_IDS else "×1        "
+                print(f"  [{c['id']:25s}] {c['n_seats']:3d} seats | {c['n_personas']:2d} personas {ens} | "
+                      f"marginal={c.get('marginal_seats_2021','?'):2} | "
+                      f"2021: TMC {c['tmc_2021']:.0%} BJP {c['bjp_2021']:.0%}")
+            return
+
+        lock_cluster_id = args.cluster if args.cluster else "all_clusters"
+        acquire_pid_lock(lock_cluster_id)
+
+        cluster_ids = [args.cluster] if args.cluster else None
+        results = await run_all_clusters(cluster_ids)
+
+        print_cluster_vote_shares(results["cluster_results"])
+
+        seat_input = results["cluster_results"]
+        seat_result = compute_seat_predictions(
+            seat_input,
+            confidence_penalty=float(results.get("confidence_penalty", 0.0) or 0.0),
+            is_partial=bool(results.get("is_partial", False)),
+        )
+        print_seat_report(seat_result)
+
+        output_dir = _BENCH_DIR / "results"
+        saved = save_results(results, output_dir)
+        print(f"\nResults saved: {saved}")
+    finally:
+        try:
+            _dump_cost_trace()
+        finally:
+            signal.signal(signal.SIGINT, prior_sigint)
+            signal.signal(signal.SIGTERM, prior_sigterm)
 
 
 if __name__ == "__main__":

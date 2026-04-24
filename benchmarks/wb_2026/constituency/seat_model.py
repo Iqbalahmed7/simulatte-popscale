@@ -33,6 +33,9 @@ import math
 def compute_seat_predictions(
     cluster_results: list[dict],
     use_cube_law: bool = True,
+    *,
+    confidence_penalty: float = 0.0,
+    is_partial: bool = False,
 ) -> dict:
     """Convert cluster vote shares to seat predictions.
 
@@ -155,13 +158,27 @@ def compute_seat_predictions(
     # Confidence range: ±half of total marginal seats
     total_marginal = sum(c["marginal_seats"] for c in cluster_breakdown)
     confidence_range = max(5, total_marginal // 2)
+    confidence_range_seats = confidence_range
+    if confidence_penalty > 0:
+        confidence_range_seats = round(confidence_range * (1 + confidence_penalty))
+
+    all_waivers: list[dict] = []
+    for row in cluster_results:
+        waivers = row.get("gate_waivers") or []
+        if isinstance(waivers, list):
+            all_waivers.extend(waivers)
+
+    schema_version = "2.0" if (confidence_penalty > 0 or is_partial or all_waivers) else "1.0"
 
     return {
+        "schema_version": schema_version,
         "seat_predictions": total_seats,
         "cluster_breakdown": cluster_breakdown,
         "swing_analysis": swing_analysis,
         "total_marginal_seats": total_marginal,
-        "confidence_range_seats": confidence_range,
+        "confidence_range_seats": confidence_range_seats,
+        "is_partial": is_partial,
+        "gate_waivers": all_waivers,
         "majority_threshold": 148,
         "tmc_majority": total_seats["TMC"] >= 148,
         "seat_model": "cube_law" if use_cube_law else "linear",
