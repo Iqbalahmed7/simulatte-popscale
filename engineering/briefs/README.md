@@ -64,12 +64,13 @@ Three possible verdicts: ✅ Accept · 🔧 Accept with fixes · ❌ Reject.
 
 | Brief | Sprint | Task | Assignee | Status |
 |---|---|---|---|---|
-| [BRIEF-001](./BRIEF-001-cost-observability.md) | S1.1 | Cost observability instrumentation | **Cursor** | 🟢 Open |
-| [BRIEF-002](./BRIEF-002-guardrails.md) | S1.2+S1.3 | Bounded retry + streaming + concurrency guardrail | **Codex** (GPT-5.3 medium) | 🟢 Open |
+| [BRIEF-001](./BRIEF-001-cost-observability.md) | S1.1 | Cost observability instrumentation | **Cursor** | ✅ Accepted |
+| [BRIEF-002](./BRIEF-002-guardrails.md) | S1.2+S1.3 | Bounded retry + streaming + concurrency guardrail | **Codex** (GPT-5.3 medium) | ✅ Accepted |
+| [BRIEF-003](./BRIEF-003-manifesto-sensitivity.md) | S1.4 | Manifesto sensitivity re-run (Sprint 1 closer) | **Cursor** | 🟢 Open |
 
-Both briefs are independent. Different files, no merge conflicts expected. Work in parallel.
+BRIEF-001 and BRIEF-002 are merged on `sprint1/brief-002-guardrails`. BRIEF-003 branches from there.
 
-After both are accepted, **BRIEF-003** (Sprint 1 closer: WB 2026 manifesto sensitivity re-run) will be released.
+After BRIEF-003 is accepted, coordinator triggers the live $75 manifesto run and Sprint 1 is closed.
 
 ---
 
