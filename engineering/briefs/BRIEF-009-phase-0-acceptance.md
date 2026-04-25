@@ -33,6 +33,35 @@ Deliver a single Markdown report (`engineering/construct_phase_2/PHASE_0_ACCEPTA
 
 ---
 
+## Pre-check gate (REVISED 2026-04-26)
+
+**Original strict gate was too broad.** Full popscale + persona-generator suites have 21 + collection-error pre-existing failures in modules unrelated to Phase 0 (`test_seeded_generation.py`, `test_week5_social.py`, `test_geographies.py`, `test_week7_calibration.py`, sklearn dev dep missing). These are tracked separately in BRIEF-010 (test debt cleanup). They do **not** block Phase 0 acceptance.
+
+**Revised pre-check gate — must be green to proceed:**
+
+```bash
+# popscale Phase 0 modules
+cd "/Users/admin/Documents/Simulatte Projects/PopScale"
+python3 -m pytest -q \
+  popscale/config/tests/ \
+  popscale/scenario/tests/ \
+  popscale/observability/tests/ \
+  benchmarks/wb_2026/constituency/tests/ \
+  --no-header --tb=no
+# Expected: 13 passed (BRIEFs 005, 006, 007, 008)
+
+# persona-generator credit detector
+cd "/Users/admin/Documents/Simulatte Projects/Persona Generator"
+python3 -m pytest -q tests/test_credit_monitor.py --no-header --tb=no
+# Expected: 5 passed (BRIEF-004)
+```
+
+**If those 18 tests are green, proceed to A/B/C/D regardless of unrelated suite state.** Document the 21 pre-existing failures + sklearn missing in the report's "known baseline" section, then proceed.
+
+If any of the 18 Phase 0 tests fail, halt and report — that *would* be a regression.
+
+---
+
 ## The three tests
 
 ### Test A — Pre-flight rejects relative path

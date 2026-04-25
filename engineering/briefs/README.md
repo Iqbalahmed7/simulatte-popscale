@@ -72,7 +72,8 @@ Three possible verdicts: ✅ Accept · 🔧 Accept with fixes · ❌ Reject.
 | [BRIEF-006](./BRIEF-006-preflight-config-validator.md) | C2.P0 | Pre-flight config validator | **Cursor** | ✅ Merged |
 | [BRIEF-007](./BRIEF-007-absolute-path-enforcement.md) | C2.P0 | Absolute path enforcement | **Cursor** | ✅ Merged |
 | [BRIEF-008](./BRIEF-008-cost-dashboard-mvp.md) | C2.P0 | Cost & progress dashboard MVP | **Cursor** | ✅ Merged |
-| [BRIEF-009](./BRIEF-009-phase-0-acceptance.md) | C2.P0 | Phase 0 forced-failure acceptance run | **Cursor or Codex** | 🟢 Open |
+| [BRIEF-009](./BRIEF-009-phase-0-acceptance.md) | C2.P0 | Phase 0 forced-failure acceptance run | **Cursor** | 🟡 In flight (gate amended 2026-04-26) |
+| [BRIEF-010](./BRIEF-010-test-debt-cleanup.md) | Cleanup | Pre-existing test debt: 21 popscale failures + sklearn dep | **Codex or Cursor** | 🟢 Open · LOW priority |
 
 **Sprint 1** (BRIEF-001 through 003) closed 2026-04-25 with the WB 2026 manifesto sensitivity rerun delivered.
 **Construct Phase 2 / Phase 0** (BRIEF-004 through 008) opens 2026-04-25. Each brief on its own branch: `phase-0/brief-NNN-<slug>` off `main`. Briefs are parallel-safe and can ship in any order.
