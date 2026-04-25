@@ -104,11 +104,20 @@ def _ensure_pg() -> None:
 
     import os
 
-    # Option 1: explicit env-var (production)
+    # Option 1: pip-installed simulatte-persona-generator (production Railway)
+    try:
+        import src.social.loop_orchestrator  # noqa: F401
+        _pg_loaded = True
+        logger.debug("PG loaded from pip-installed package")
+        return
+    except ImportError:
+        pass
+
+    # Option 2: explicit env-var override
     pg_root_env = os.environ.get("PG_ROOT")
     candidate: Optional[Path] = Path(pg_root_env) if pg_root_env else None
 
-    # Option 2: sibling directory (local dev)
+    # Option 3: sibling directory (local dev mono-repo)
     if candidate is None or not candidate.exists():
         candidate = Path(__file__).parents[3] / "Persona Generator"
 
@@ -123,7 +132,6 @@ def _ensure_pg() -> None:
     if pg_root_str not in sys.path:
         sys.path.insert(0, pg_root_str)
 
-    # Verify the import actually works
     try:
         import src.social.loop_orchestrator  # noqa: F401
     except ModuleNotFoundError as exc:
