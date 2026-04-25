@@ -37,6 +37,7 @@ import signal
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 # ── Path setup ────────────────────────────────────────────────────────────────
 _BENCH_DIR    = Path(__file__).parent
@@ -53,6 +54,7 @@ from niobe.study_request import NiobeStudyRequest   # noqa: E402
 from niobe.runner import run_niobe_study             # noqa: E402
 from popscale.config.validator import make_absolute_path, parse_absolute_path, validate_config  # noqa: E402
 from popscale.observability.emitter import RunEventEmitter  # noqa: E402
+from src.utils.credit_monitor import CreditExhaustedError, get_credit_monitor  # noqa: E402
 from .cluster_definitions import CLUSTERS, SWING_CLUSTER_IDS  # noqa: E402
 from .manifesto_contexts import BJP_MANIFESTO_CONTEXT, MANIFESTO_CONTEXTS, TMC_MANIFESTO_CONTEXT  # noqa: E402
 from .seat_model import compute_seat_predictions, print_seat_report  # noqa: E402
@@ -286,11 +288,81 @@ async def run_cluster(
     return row
 
 
+def _is_cluster_complete(cluster_row: dict) -> bool:
+    runs_complete = int(cluster_row.get("ensemble_runs_complete", cluster_row.get("ensemble_runs", 1)))
+    runs_total = int(cluster_row.get("ensemble_runs_total", cluster_row.get("ensemble_runs", 1)))
+    return runs_complete >= runs_total and not bool(cluster_row.get("is_partial", False))
+
+
+def _normalize_partial_ensemble_runs(cluster_row: dict) -> list[dict]:
+    runs = list(cluster_row.get("ensemble_runs_data") or [])
+    if runs:
+        return runs
+    detail = list(cluster_row.get("ensemble_detail") or [])
+    return [{"run_index": idx + 1, "shares": shares} for idx, shares in enumerate(detail)]
+
+
+def _build_ensemble_cluster_result(
+    *,
+    cluster: dict,
+    ensemble_runs_data: list[dict],
+    all_waivers: list[dict],
+    max_penalty: float,
+    n_runs: int,
+) -> dict:
+    parties = ["TMC", "BJP", "Left-Congress", "Others"]
+    run_shares = [dict(r["shares"]) for r in ensemble_runs_data]
+    runs_complete = len(run_shares)
+    avg_raw = (
+        {p: sum(s[p] for s in run_shares) / runs_complete for p in parties}
+        if runs_complete > 0
+        else {p: 0.0 for p in parties}
+    )
+    total = sum(avg_raw.values()) or 1.0
+    avg = {p: round(v / total, 4) for p, v in avg_raw.items()}
+    is_partial = runs_complete < n_runs
+    return {
+        "id": cluster["id"],
+        "name": cluster["name"],
+        "n_seats": cluster["n_seats"],
+        "n_personas": cluster["n_personas"] * runs_complete,
+        "tmc_2021": cluster["tmc_2021"],
+        "bjp_2021": cluster["bjp_2021"],
+        "left_2021": cluster["left_2021"],
+        "others_2021": cluster["others_2021"],
+        "sim_tmc": avg["TMC"],
+        "sim_bjp": avg["BJP"],
+        "sim_left": avg["Left-Congress"],
+        "sim_others": avg["Others"],
+        "swing_notes": cluster["swing_notes"],
+        "key_seats": cluster["key_seats"],
+        "marginal_seats_2021": cluster.get("marginal_seats_2021"),
+        "ensemble_runs": n_runs,
+        "ensemble_runs_complete": runs_complete,
+        "ensemble_runs_total": n_runs,
+        "ensemble_detail": run_shares,
+        "ensemble_runs_data": ensemble_runs_data,
+        "ensemble_avg": None if is_partial else avg,
+        "is_partial": is_partial,
+        "gate_waivers": all_waivers,
+        "confidence_penalty": max_penalty,
+    }
+
+
+def _ordered_cluster_results(target_clusters: list[dict], rows_by_id: dict[str, dict]) -> list[dict]:
+    return [rows_by_id[c["id"]] for c in target_clusters if c["id"] in rows_by_id]
+
+
 async def run_cluster_ensemble(
     cluster: dict,
     n_runs: int = N_ENSEMBLE_RUNS,
     manifesto: str | None = None,
     emitter: RunEventEmitter | None = None,
+    *,
+    existing_runs_data: list[dict] | None = None,
+    existing_waivers: list[dict] | None = None,
+    existing_penalty: float = 0.0,
+    on_run_complete: Any | None = None,
 ) -> dict:
     """Run a swing cluster n_runs times and average vote shares for stability.
 
@@ -299,12 +371,12 @@ async def run_cluster_ensemble(
     """
     logger.info("Ensemble ×%d starting: %s (%d personas/run, %d seats)",
                 n_runs, cluster["name"], cluster["n_personas"], cluster["n_seats"])
-    parties = ["TMC", "BJP", "Left-Congress", "Others"]
-    all_shares: list[dict[str, float]] = []
-    all_waivers: list[dict] = []
-    max_penalty = 0.0
+    all_runs_data = list(existing_runs_data or [])
+    all_waivers = list(existing_waivers or [])
+    max_penalty = existing_penalty
+    start_idx = len(all_runs_data)
 
-    for i in range(n_runs):
+    for i in range(start_idx, n_runs):
         logger.info("  [%s] ensemble run %d/%d", cluster["id"], i + 1, n_runs)
         if emitter is not None:
             emitter.emit(
@@ -319,7 +391,7 @@ async def run_cluster_ensemble(
         waivers, penalty = _extract_guardrails(result)
         all_waivers.extend(waivers)
         max_penalty = max(max_penalty, penalty)
-        all_shares.append(shares)
+        all_runs_data.append({"run_index": i + 1, "shares": shares})
         logger.info("    run %d → TMC %.1f%% BJP %.1f%% Left %.1f%% Other %.1f%%",
                     i + 1, shares["TMC"] * 100, shares["BJP"] * 100,
                     shares["Left-Congress"] * 100, shares["Others"] * 100)
@@ -338,38 +410,28 @@ async def run_cluster_ensemble(
                 ensemble_idx=i + 1,
                 result=shares,
             )
+        if on_run_complete is not None:
+            current = _build_ensemble_cluster_result(
+                cluster=cluster,
+                ensemble_runs_data=all_runs_data,
+                all_waivers=all_waivers,
+                max_penalty=max_penalty,
+                n_runs=n_runs,
+            )
+            await on_run_complete(current)
 
-    # Average across runs then re-normalise
-    avg = {p: sum(s[p] for s in all_shares) / n_runs for p in parties}
-    total = sum(avg.values())
-    avg = {p: round(v / total, 4) for p, v in avg.items()}
+    row = _build_ensemble_cluster_result(
+        cluster=cluster,
+        ensemble_runs_data=all_runs_data,
+        all_waivers=all_waivers,
+        max_penalty=max_penalty,
+        n_runs=n_runs,
+    )
 
     logger.info("  %s ensemble avg → TMC %.1f%% BJP %.1f%% Left %.1f%% Other %.1f%%",
                 cluster["id"],
-                avg["TMC"] * 100, avg["BJP"] * 100,
-                avg["Left-Congress"] * 100, avg["Others"] * 100)
-
-    row = {
-        "id": cluster["id"],
-        "name": cluster["name"],
-        "n_seats": cluster["n_seats"],
-        "n_personas": cluster["n_personas"] * n_runs,   # total personas run
-        "tmc_2021":    cluster["tmc_2021"],
-        "bjp_2021":    cluster["bjp_2021"],
-        "left_2021":   cluster["left_2021"],
-        "others_2021": cluster["others_2021"],
-        "sim_tmc":    avg["TMC"],
-        "sim_bjp":    avg["BJP"],
-        "sim_left":   avg["Left-Congress"],
-        "sim_others": avg["Others"],
-        "swing_notes": cluster["swing_notes"],
-        "key_seats":   cluster["key_seats"],
-        "marginal_seats_2021": cluster.get("marginal_seats_2021"),
-        "ensemble_runs": n_runs,
-        "ensemble_detail": all_shares,
-        "gate_waivers": all_waivers,
-        "confidence_penalty": max_penalty,
-    }
+                row["sim_tmc"] * 100, row["sim_bjp"] * 100,
+                row["sim_left"] * 100, row["sim_others"] * 100)
     if emitter is not None:
         emitter.emit(
             "cluster_completed",
@@ -407,26 +469,22 @@ async def run_all_clusters(
         if not target_clusters:
             raise ValueError(f"Unknown cluster IDs: {cluster_ids}")
 
-    # Resume logic: load completed clusters from a prior partial file.
     if resume_from is not None:
         with resume_from.open() as _f:
             _partial_data = json.load(_f)
         run_id = _partial_data["run_id"]
         cluster_results = list(_partial_data.get("cluster_results", []))
-        already_done = {r["id"] for r in cluster_results}
-        logger.info(
-            "Resuming run %s — %d clusters already completed: %s",
-            run_id, len(already_done), ", ".join(sorted(already_done)),
-        )
     else:
         run_id = run_id_override or datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
         cluster_results = []
-        already_done: set[str] = set()
 
     partial_path = Path(os.getenv("SIMULATTE_PARTIAL_DIR", "/tmp/wb_reruns")) / f"{run_id}.partial.json"
     partial_path.parent.mkdir(parents=True, exist_ok=True)
 
+    rows_by_id: dict[str, dict] = {row["id"]: row for row in cluster_results}
+    already_done = {row["id"] for row in cluster_results if _is_cluster_complete(row)}
     remaining = [c for c in target_clusters if c["id"] not in already_done]
+
     logger.info(
         "%s WB 2026 constituency run | id=%s | clusters=%d/%d | total_personas=%d",
         "Resuming" if resume_from else "Starting",
@@ -434,49 +492,134 @@ async def run_all_clusters(
         sum(c["n_personas"] for c in remaining),
     )
 
-    # Run clusters sequentially to manage API rate limits.
-    # Swing clusters use ensemble averaging (3 independent runs).
-    for cluster in remaining:
-        if cluster["id"] in SWING_CLUSTER_IDS:
-            cr = await run_cluster_ensemble(
-                cluster,
-                n_runs=N_ENSEMBLE_RUNS,
-                manifesto=manifesto,
-                emitter=emitter,
+    monitor = get_credit_monitor()
+    monitor.update_progress(run_id=run_id, checkpoint_path=str(partial_path))
+    balance = await monitor.preflight_check(run_id=run_id)
+    logger.info("Pre-flight credit OK: balance $%.2f (buffer $%.2f)", balance, monitor.buffer_usd)
+    await monitor.start_background_monitor()
+
+    try:
+        for cluster in target_clusters:
+            cluster_id = cluster["id"]
+            if cluster_id in already_done:
+                continue
+            if monitor.is_halt_requested():
+                raise CreditExhaustedError(monitor.halt_snapshot().get("reason", "credit halt requested"))
+
+            if cluster_id in SWING_CLUSTER_IDS:
+                existing = rows_by_id.get(cluster_id)
+                existing_runs_data = _normalize_partial_ensemble_runs(existing) if existing else []
+                existing_waivers = list((existing or {}).get("gate_waivers") or [])
+                existing_penalty = float((existing or {}).get("confidence_penalty", 0.0) or 0.0)
+
+                async def _on_ensemble_run(current_row: dict) -> None:
+                    rows_by_id[cluster_id] = current_row
+                    monitor.update_progress(
+                        run_id=run_id,
+                        cluster_id=cluster_id,
+                        ensemble_idx=int(current_row.get("ensemble_runs_complete", 0)),
+                        ensemble_total=N_ENSEMBLE_RUNS,
+                        checkpoint_path=str(partial_path),
+                    )
+                    _write_partial_results(
+                        partial_path,
+                        run_id=run_id,
+                        cluster_results=_ordered_cluster_results(target_clusters, rows_by_id),
+                        status="in_progress",
+                        is_partial=True,
+                    )
+
+                row = await run_cluster_ensemble(
+                    cluster,
+                    n_runs=N_ENSEMBLE_RUNS,
+                    manifesto=manifesto,
+                    emitter=emitter,
+                    existing_runs_data=existing_runs_data,
+                    existing_waivers=existing_waivers,
+                    existing_penalty=existing_penalty,
+                    on_run_complete=_on_ensemble_run,
+                )
+                rows_by_id[cluster_id] = row
+                if int(row.get("ensemble_runs_complete", 0)) == len(existing_runs_data):
+                    # Ensure a partial file exists even when no new run executed.
+                    _write_partial_results(
+                        partial_path,
+                        run_id=run_id,
+                        cluster_results=_ordered_cluster_results(target_clusters, rows_by_id),
+                        status="in_progress",
+                        is_partial=True,
+                    )
+            else:
+                row = await run_cluster(cluster, manifesto=manifesto, emitter=emitter)
+                row["is_partial"] = False
+                row["ensemble_runs_complete"] = 1
+                row["ensemble_runs_total"] = 1
+                rows_by_id[cluster_id] = row
+                monitor.update_progress(
+                    run_id=run_id,
+                    cluster_id=cluster_id,
+                    ensemble_idx=1,
+                    ensemble_total=1,
+                    checkpoint_path=str(partial_path),
+                )
+                _write_partial_results(
+                    partial_path,
+                    run_id=run_id,
+                    cluster_results=_ordered_cluster_results(target_clusters, rows_by_id),
+                    status="in_progress",
+                    is_partial=True,
+                )
+
+            if monitor.is_halt_requested():
+                raise CreditExhaustedError(monitor.halt_snapshot().get("reason", "credit halt requested"))
+
+        final_rows = _ordered_cluster_results(target_clusters, rows_by_id)
+        if not all(_is_cluster_complete(row) for row in final_rows):
+            _write_partial_results(
+                partial_path,
+                run_id=run_id,
+                cluster_results=final_rows,
+                status="halted",
+                is_partial=True,
+                halt=monitor.halt_snapshot(),
             )
-        else:
-            cr = await run_cluster(cluster, manifesto=manifesto, emitter=emitter)
-        cluster_results.append(cr)
+            raise CreditExhaustedError(monitor.halt_snapshot().get("reason", "run halted before completion"))
+
+        confidence_penalty = _aggregate_confidence_penalty(final_rows)
+        seat_result = compute_seat_predictions(
+            final_rows,
+            use_cube_law=True,
+            confidence_penalty=confidence_penalty,
+            is_partial=False,
+        )
         _write_partial_results(
             partial_path,
             run_id=run_id,
-            cluster_results=cluster_results,
-            status="in_progress",
-            is_partial=True,
+            cluster_results=final_rows,
+            status="completed",
+            is_partial=False,
         )
-
-    confidence_penalty = _aggregate_confidence_penalty(cluster_results)
-    seat_result = compute_seat_predictions(
-        cluster_results,
-        use_cube_law=True,
-        confidence_penalty=confidence_penalty,
-        is_partial=False,
-    )
-    _write_partial_results(
-        partial_path,
-        run_id=run_id,
-        cluster_results=cluster_results,
-        status="completed",
-        is_partial=False,
-    )
+    except CreditExhaustedError:
+        halted_rows = _ordered_cluster_results(target_clusters, rows_by_id)
+        _write_partial_results(
+            partial_path,
+            run_id=run_id,
+            cluster_results=halted_rows,
+            status="halted_credit_low",
+            is_partial=True,
+            halt=monitor.halt_snapshot(),
+        )
+        raise
+    finally:
+        await monitor.stop_background_monitor()
 
     return {
         "run_id": run_id,
         "run_date": datetime.now(timezone.utc).isoformat(),
-        "n_clusters": len(cluster_results),
-        "total_personas": sum(c["n_personas"] for c in cluster_results),
+        "n_clusters": len(final_rows),
+        "total_personas": sum(c["n_personas"] for c in final_rows),
         "total_seats": 294,
-        "cluster_results": cluster_results,
+        "cluster_results": final_rows,
         "seat_prediction": seat_result["seat_predictions"],
         "cluster_breakdown": seat_result["cluster_breakdown"],
         "swing_analysis": seat_result["swing_analysis"],
@@ -512,6 +655,7 @@ def _write_partial_results(
     cluster_results: list[dict],
     status: str,
     is_partial: bool,
+    halt: dict[str, Any] | None = None,
 ) -> None:
     confidence_penalty = _aggregate_confidence_penalty(cluster_results)
     seat_result = compute_seat_predictions(
@@ -549,7 +693,15 @@ def _write_partial_results(
         "confidence_range_seats": seat_result["confidence_range_seats"],
         "tmc_majority": seat_result["tmc_majority"],
     }
-    partial_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    if halt is not None:
+        payload["halt"] = halt
+
+    tmp_path = partial_path.with_suffix(partial_path.suffix + ".tmp")
+    with tmp_path.open("w", encoding="utf-8") as fh:
+        json.dump(payload, fh, indent=2)
+        fh.flush()
+        os.fsync(fh.fileno())
+    os.replace(tmp_path, partial_path)
 
 
 def _estimate_manifesto_run_cost(swing_clusters: list[dict]) -> float:
@@ -903,7 +1055,7 @@ async def main() -> None:
             force_over_budget=args.force_over_budget,
             baseline_path=Path(args.sensitivity_baseline) if args.sensitivity_baseline else None,
             require_anthropic_key=require_api_key,
-            credit_detector_active=False,
+            credit_detector_active=True,
         )
         print(preflight.render())
         if not preflight.ok:
@@ -1013,7 +1165,7 @@ async def main() -> None:
                     f"completed. Use --results-file to display it instead."
                 )
                 raise SystemExit(1)
-            _already_done = {r["id"] for r in _pdata.get("cluster_results", [])}
+            _already_done = {r["id"] for r in _pdata.get("cluster_results", []) if _is_cluster_complete(r)}
             print(
                 f"Resuming run {_pdata['run_id']} — "
                 f"skipping {len(_already_done)} completed cluster(s): "
@@ -1050,13 +1202,17 @@ async def main() -> None:
                 raise SystemExit(1)
 
         try:
-            results = await run_all_clusters(
-                cluster_ids,
-                manifesto=args.manifesto,
-                resume_from=resume_from,
-                emitter=emitter,
-                run_id_override=active_run_id,
-            )
+            try:
+                results = await run_all_clusters(
+                    cluster_ids,
+                    manifesto=args.manifesto,
+                    resume_from=resume_from,
+                    emitter=emitter,
+                    run_id_override=active_run_id,
+                )
+            except CreditExhaustedError as exc:
+                print(f"HALT: {exc}")
+                raise SystemExit(2)
         except Exception as exc:
             emitter.emit("error", level="ERROR", msg=str(exc))
             raise
