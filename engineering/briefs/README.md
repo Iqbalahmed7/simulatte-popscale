@@ -65,12 +65,18 @@ Three possible verdicts: ✅ Accept · 🔧 Accept with fixes · ❌ Reject.
 | Brief | Sprint | Task | Assignee | Status |
 |---|---|---|---|---|
 | [BRIEF-001](./BRIEF-001-cost-observability.md) | S1.1 | Cost observability instrumentation | **Cursor** | ✅ Accepted |
-| [BRIEF-002](./BRIEF-002-guardrails.md) | S1.2+S1.3 | Bounded retry + streaming + concurrency guardrail | **Codex** (GPT-5.3 medium) | ✅ Accepted |
-| [BRIEF-003](./BRIEF-003-manifesto-sensitivity.md) | S1.4 | Manifesto sensitivity re-run (Sprint 1 closer) | **Cursor** | 🟢 Open |
+| [BRIEF-002](./BRIEF-002-guardrails.md) | S1.2+S1.3 | Bounded retry + streaming + concurrency guardrail | **Codex** | ✅ Accepted |
+| [BRIEF-003](./BRIEF-003-manifesto-sensitivity.md) | S1.4 | Manifesto sensitivity re-run (Sprint 1 closer) | **Cursor** | ✅ Accepted |
+| [BRIEF-004](./BRIEF-004-credit-detector.md) | C2.P0 | Credit exhaustion detector | **Codex** | 🟢 Open |
+| [BRIEF-005](./BRIEF-005-per-ensemble-partial-writes.md) | C2.P0 | Per-ensemble partial writes | **Codex** | 🟢 Open |
+| [BRIEF-006](./BRIEF-006-preflight-config-validator.md) | C2.P0 | Pre-flight config validator | **Cursor** | 🟢 Open |
+| [BRIEF-007](./BRIEF-007-absolute-path-enforcement.md) | C2.P0 | Absolute path enforcement | **Cursor** | 🟢 Open |
+| [BRIEF-008](./BRIEF-008-cost-dashboard-mvp.md) | C2.P0 | Cost & progress dashboard MVP | **Cursor** | 🟢 Open |
 
-BRIEF-001 and BRIEF-002 are merged on `sprint1/brief-002-guardrails`. BRIEF-003 branches from there.
+**Sprint 1** (BRIEF-001 through 003) closed 2026-04-25 with the WB 2026 manifesto sensitivity rerun delivered.
+**Construct Phase 2 / Phase 0** (BRIEF-004 through 008) opens 2026-04-25. Each brief on its own branch: `phase-0/brief-NNN-<slug>` off `main`. Briefs are parallel-safe and can ship in any order.
 
-After BRIEF-003 is accepted, coordinator triggers the live $75 manifesto run and Sprint 1 is closed.
+Phase 2 orientation docs (read these first): [`construct_phase_2/README.md`](../construct_phase_2/README.md) → PRINCIPLES → CONSTRUCT_PHASE_2 → CORE_SPEC → GROUND_TRUTH_REGISTRY.
 
 ---
 
