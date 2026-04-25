@@ -14,9 +14,11 @@ Design principle: keep the Scenario thin. It carries the *question* and
 from __future__ import annotations
 
 from enum import Enum
+from pathlib import Path
 from typing import Any, Optional
 
 from pydantic import BaseModel, Field, field_validator
+from popscale.config.validator import make_absolute_path
 
 
 class SimulationDomain(str, Enum):
@@ -113,6 +115,16 @@ class Scenario(BaseModel):
         description="Caller-defined metadata (e.g. client_id, study_id, wave).",
     )
 
+    manifesto: str | None = Field(
+        default=None,
+        description="Optional manifesto injection text.",
+    )
+
+    sensitivity_baseline: Path | None = Field(
+        default=None,
+        description="Absolute path to baseline result file for sensitivity deltas.",
+    )
+
     @field_validator("options")
     @classmethod
     def validate_options(cls, v: list[str]) -> list[str]:
@@ -150,6 +162,12 @@ class Scenario(BaseModel):
         if not self.options:
             return "(Open-ended — agents form their own position)"
         return "\n".join(f"  {i+1}. {opt}" for i, opt in enumerate(self.options))
+
+    def model_post_init(self, __context: Any) -> None:
+        if self.sensitivity_baseline is not None:
+            self.sensitivity_baseline = Path(
+                make_absolute_path(self.sensitivity_baseline)
+            )
 
 
 class ScenarioBundle(BaseModel):

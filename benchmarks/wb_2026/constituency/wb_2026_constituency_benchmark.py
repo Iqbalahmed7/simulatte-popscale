@@ -51,6 +51,8 @@ for p in [str(_POPSCALE_ROOT), str(_NIOBE_ROOT), str(_PG_ROOT)]:
 
 from niobe.study_request import NiobeStudyRequest   # noqa: E402
 from niobe.runner import run_niobe_study             # noqa: E402
+from popscale.config.validator import make_absolute_path, parse_absolute_path, validate_config  # noqa: E402
+from popscale.observability.emitter import RunEventEmitter  # noqa: E402
 from .cluster_definitions import CLUSTERS, SWING_CLUSTER_IDS  # noqa: E402
 from .manifesto_contexts import BJP_MANIFESTO_CONTEXT, MANIFESTO_CONTEXTS, TMC_MANIFESTO_CONTEXT  # noqa: E402
 from .seat_model import compute_seat_predictions, print_seat_report  # noqa: E402
@@ -224,11 +226,17 @@ def extract_vote_shares(result) -> dict[str, float]:
     return {p: round(c / n_total, 4) for p, c in counts.items()}
 
 
-async def run_cluster(cluster: dict, manifesto: str | None = None) -> dict:
+async def run_cluster(
+    cluster: dict,
+    manifesto: str | None = None,
+    emitter: RunEventEmitter | None = None,
+) -> dict:
     """Run simulation for a single cluster. Returns result dict."""
     logger.info("Running cluster: %s (%d personas, %d seats)",
                 cluster["name"], cluster["n_personas"], cluster["n_seats"])
     request = build_cluster_request(cluster, manifesto=manifesto)
+    if emitter is not None:
+        emitter.emit("cluster_started", cluster_id=cluster["id"], n_personas=cluster["n_personas"])
     result = await run_niobe_study(request)
     shares = extract_vote_shares(result)
     waivers, penalty = _extract_guardrails(result)
@@ -236,7 +244,7 @@ async def run_cluster(cluster: dict, manifesto: str | None = None) -> dict:
                 cluster["id"],
                 shares["TMC"] * 100, shares["BJP"] * 100,
                 shares["Left-Congress"] * 100, shares["Others"] * 100)
-    return {
+    row = {
         "id": cluster["id"],
         "name": cluster["name"],
         "n_seats": cluster["n_seats"],
@@ -256,12 +264,33 @@ async def run_cluster(cluster: dict, manifesto: str | None = None) -> dict:
         "gate_waivers": waivers,
         "confidence_penalty": penalty,
     }
+    if emitter is not None:
+        emitter.emit(
+            "api_call",
+            cluster_id=cluster["id"],
+            requests=max(1, cluster["n_personas"]),
+            cost_usd=round(cluster["n_personas"] * 0.09, 4),
+            model="haiku",
+            cache_hit=False,
+        )
+        emitter.emit(
+            "cluster_completed",
+            cluster_id=cluster["id"],
+            ensemble_avg={
+                "TMC": row["sim_tmc"],
+                "BJP": row["sim_bjp"],
+                "Left-Congress": row["sim_left"],
+                "Others": row["sim_others"],
+            },
+        )
+    return row
 
 
 async def run_cluster_ensemble(
     cluster: dict,
     n_runs: int = N_ENSEMBLE_RUNS,
     manifesto: str | None = None,
+    emitter: RunEventEmitter | None = None,
 ) -> dict:
     """Run a swing cluster n_runs times and average vote shares for stability.
 
@@ -277,6 +306,13 @@ async def run_cluster_ensemble(
 
     for i in range(n_runs):
         logger.info("  [%s] ensemble run %d/%d", cluster["id"], i + 1, n_runs)
+        if emitter is not None:
+            emitter.emit(
+                "ensemble_started",
+                cluster_id=cluster["id"],
+                ensemble_idx=i + 1,
+                ensemble_total=n_runs,
+            )
         request = build_cluster_request(cluster, manifesto=manifesto)
         result = await run_niobe_study(request)
         shares = extract_vote_shares(result)
@@ -287,6 +323,21 @@ async def run_cluster_ensemble(
         logger.info("    run %d → TMC %.1f%% BJP %.1f%% Left %.1f%% Other %.1f%%",
                     i + 1, shares["TMC"] * 100, shares["BJP"] * 100,
                     shares["Left-Congress"] * 100, shares["Others"] * 100)
+        if emitter is not None:
+            emitter.emit(
+                "api_call",
+                cluster_id=cluster["id"],
+                requests=max(1, cluster["n_personas"]),
+                cost_usd=round(cluster["n_personas"] * 0.10, 4),
+                model="haiku",
+                cache_hit=False,
+            )
+            emitter.emit(
+                "ensemble_completed",
+                cluster_id=cluster["id"],
+                ensemble_idx=i + 1,
+                result=shares,
+            )
 
     # Average across runs then re-normalise
     avg = {p: sum(s[p] for s in all_shares) / n_runs for p in parties}
@@ -298,7 +349,7 @@ async def run_cluster_ensemble(
                 avg["TMC"] * 100, avg["BJP"] * 100,
                 avg["Left-Congress"] * 100, avg["Others"] * 100)
 
-    return {
+    row = {
         "id": cluster["id"],
         "name": cluster["name"],
         "n_seats": cluster["n_seats"],
@@ -319,12 +370,26 @@ async def run_cluster_ensemble(
         "gate_waivers": all_waivers,
         "confidence_penalty": max_penalty,
     }
+    if emitter is not None:
+        emitter.emit(
+            "cluster_completed",
+            cluster_id=cluster["id"],
+            ensemble_avg={
+                "TMC": row["sim_tmc"],
+                "BJP": row["sim_bjp"],
+                "Left-Congress": row["sim_left"],
+                "Others": row["sim_others"],
+            },
+        )
+    return row
 
 
 async def run_all_clusters(
     cluster_ids: list[str] | None = None,
     manifesto: str | None = None,
     resume_from: Path | None = None,
+    emitter: RunEventEmitter | None = None,
+    run_id_override: str | None = None,
 ) -> dict:
     """Run all (or selected) clusters and produce consolidated results.
 
@@ -354,7 +419,7 @@ async def run_all_clusters(
             run_id, len(already_done), ", ".join(sorted(already_done)),
         )
     else:
-        run_id = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+        run_id = run_id_override or datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
         cluster_results = []
         already_done: set[str] = set()
 
@@ -373,9 +438,14 @@ async def run_all_clusters(
     # Swing clusters use ensemble averaging (3 independent runs).
     for cluster in remaining:
         if cluster["id"] in SWING_CLUSTER_IDS:
-            cr = await run_cluster_ensemble(cluster, n_runs=N_ENSEMBLE_RUNS, manifesto=manifesto)
+            cr = await run_cluster_ensemble(
+                cluster,
+                n_runs=N_ENSEMBLE_RUNS,
+                manifesto=manifesto,
+                emitter=emitter,
+            )
         else:
-            cr = await run_cluster(cluster, manifesto=manifesto)
+            cr = await run_cluster(cluster, manifesto=manifesto, emitter=emitter)
         cluster_results.append(cr)
         _write_partial_results(
             partial_path,
@@ -488,6 +558,15 @@ def _estimate_manifesto_run_cost(swing_clusters: list[dict]) -> float:
     for c in swing_clusters:
         runs = N_ENSEMBLE_RUNS
         total += c["n_personas"] * 0.10 * runs
+    return total
+
+
+def _estimate_standard_run_cost(clusters: list[dict]) -> float:
+    """Approximate non-manifesto run cost used for pre-flight budgeting."""
+    total = 0.0
+    for c in clusters:
+        runs = N_ENSEMBLE_RUNS if c["id"] in SWING_CLUSTER_IDS else 1
+        total += c["n_personas"] * 0.09 * runs
     return total
 
 
@@ -728,11 +807,11 @@ def parse_args() -> argparse.Namespace:
                    help="Print config without running simulations")
     p.add_argument("--cluster", type=str, metavar="CLUSTER_ID",
                    help="Run a single cluster (by id). E.g. --cluster murshidabad")
-    p.add_argument("--results-file", type=str, metavar="PATH",
+    p.add_argument("--results-file", type=parse_absolute_path, metavar="PATH",
                    help="Load existing JSON results file")
-    p.add_argument("--seat-model-only", type=str, metavar="PATH",
+    p.add_argument("--seat-model-only", type=parse_absolute_path, metavar="PATH",
                    help="Re-run seat model on existing results file")
-    p.add_argument("--cost-trace", type=str, default=None,
+    p.add_argument("--cost-trace", type=parse_absolute_path, default=None,
                    help="Dump per-call cost CSV to this path at end of run")
     p.add_argument(
         "--manifesto",
@@ -754,7 +833,7 @@ def parse_args() -> argparse.Namespace:
     )
     p.add_argument(
         "--sensitivity-baseline",
-        type=str,
+        type=parse_absolute_path,
         default=None,
         metavar="PATH",
         help="Path to a prior results JSON file to use as baseline for sensitivity delta "
@@ -762,13 +841,18 @@ def parse_args() -> argparse.Namespace:
     )
     p.add_argument(
         "--resume-from",
-        type=str,
+        type=parse_absolute_path,
         default=None,
         metavar="PATH",
         help="Path to a .partial.json file from a previous interrupted run. "
              "Clusters already completed in that file are skipped; the original "
              "run_id is preserved so the partial file is updated in-place. "
              "Compatible with --manifesto and --sensitivity-baseline.",
+    )
+    p.add_argument(
+        "--force-over-budget",
+        action="store_true",
+        help="Allow run to proceed when estimated cost exceeds --budget-ceiling.",
     )
     return p.parse_args()
 
@@ -793,6 +877,38 @@ async def main() -> None:
     signal.signal(signal.SIGTERM, _raise_interrupt)
 
     try:
+        selected_clusters_for_estimate = CLUSTERS
+        if args.cluster:
+            selected_clusters_for_estimate = [c for c in CLUSTERS if c["id"] == args.cluster]
+        if args.manifesto and not args.cluster:
+            selected_clusters_for_estimate = [c for c in CLUSTERS if c["id"] in SWING_CLUSTER_IDS]
+        estimated_total = (
+            _estimate_manifesto_run_cost(selected_clusters_for_estimate)
+            if args.manifesto
+            else _estimate_standard_run_cost(selected_clusters_for_estimate)
+        )
+        require_api_key = not (args.dry_run or args.results_file or args.seat_model_only)
+        preflight = validate_config(
+            path_file_args={
+                "--results-file": args.results_file,
+                "--seat-model-only": args.seat_model_only,
+                "--sensitivity-baseline": args.sensitivity_baseline,
+                "--resume-from": args.resume_from,
+            },
+            path_dir_args={
+                "--cost-trace-dir": Path(args.cost_trace).parent if args.cost_trace else None,
+            },
+            budget_ceiling=args.budget_ceiling,
+            estimated_total_usd=estimated_total,
+            force_over_budget=args.force_over_budget,
+            baseline_path=Path(args.sensitivity_baseline) if args.sensitivity_baseline else None,
+            require_anthropic_key=require_api_key,
+            credit_detector_active=False,
+        )
+        print(preflight.render())
+        if not preflight.ok:
+            raise SystemExit(1)
+
         if args.manifesto and (args.results_file or args.seat_model_only):
             print("ERROR: --manifesto cannot be combined with --results-file or --seat-model-only.")
             raise SystemExit(1)
@@ -834,13 +950,19 @@ async def main() -> None:
                     print(f"  Injected context preview ({preview_cluster['id']}): {preview}")
                 print(f"  Estimated manifesto run cost: ${estimate:.2f}")
                 if args.budget_ceiling is not None:
-                    if estimate > args.budget_ceiling:
+                    if estimate > args.budget_ceiling and not args.force_over_budget:
                         print(
                             f"ERROR: Estimated cost ${estimate:.0f} exceeds --budget-ceiling "
                             f"${args.budget_ceiling:.0f}. Aborting."
                         )
                         raise SystemExit(1)
-                    print(f"Would pass budget ceiling: ${args.budget_ceiling:.0f}")
+                    if estimate > args.budget_ceiling and args.force_over_budget:
+                        print(
+                            f"Would exceed budget ceiling ${args.budget_ceiling:.0f}, "
+                            "but --force-over-budget is set."
+                        )
+                    else:
+                        print(f"Would pass budget ceiling: ${args.budget_ceiling:.0f}")
                 return
 
             print("\n── WB 2026 Constituency Benchmark B-WB-7 — DRY RUN ──")
@@ -875,6 +997,7 @@ async def main() -> None:
 
         # --resume-from: validate and extract already-completed cluster IDs
         resume_from: Path | None = None
+        _resume_run_id: str | None = None
         _already_done: set[str] = set()
         if args.resume_from:
             resume_from = Path(args.resume_from)
@@ -883,6 +1006,7 @@ async def main() -> None:
                 raise SystemExit(1)
             with resume_from.open() as _rf:
                 _pdata = json.load(_rf)
+            _resume_run_id = str(_pdata.get("run_id")) if _pdata.get("run_id") else None
             if not _pdata.get("is_partial"):
                 print(
                     f"ERROR: --resume-from file has is_partial=false — this run already "
@@ -896,6 +1020,15 @@ async def main() -> None:
                 f"{', '.join(sorted(_already_done))}"
             )
 
+        active_run_id = _resume_run_id or datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+        emitter = RunEventEmitter(active_run_id)
+        emitter.emit(
+            "run_started",
+            cluster_total=len(cluster_ids) if cluster_ids is not None else len(CLUSTERS),
+            budget_usd=args.budget_ceiling,
+            manifesto=args.manifesto,
+        )
+
         if args.manifesto:
             # Exclude already-completed clusters from cost estimate when resuming
             run_clusters = [
@@ -905,16 +1038,28 @@ async def main() -> None:
             estimate = _estimate_manifesto_run_cost(run_clusters)
             print(f"Estimated manifesto run cost: ${estimate:.2f}"
                   + (" (remaining clusters only)" if _already_done else ""))
-            if args.budget_ceiling is not None and estimate > args.budget_ceiling:
+            if (
+                args.budget_ceiling is not None
+                and estimate > args.budget_ceiling
+                and not args.force_over_budget
+            ):
                 print(
                     f"ERROR: Estimated cost ${estimate:.0f} exceeds --budget-ceiling "
                     f"${args.budget_ceiling:.0f}. Aborting."
                 )
                 raise SystemExit(1)
 
-        results = await run_all_clusters(
-            cluster_ids, manifesto=args.manifesto, resume_from=resume_from
-        )
+        try:
+            results = await run_all_clusters(
+                cluster_ids,
+                manifesto=args.manifesto,
+                resume_from=resume_from,
+                emitter=emitter,
+                run_id_override=active_run_id,
+            )
+        except Exception as exc:
+            emitter.emit("error", level="ERROR", msg=str(exc))
+            raise
 
         print_cluster_vote_shares(results["cluster_results"])
 
@@ -929,6 +1074,12 @@ async def main() -> None:
         output_dir = _BENCH_DIR / "results"
         saved = save_results(results, output_dir)
         print(f"\nResults saved: {saved}")
+        emitter.emit(
+            "run_completed",
+            total_cost_usd=round(_estimate_standard_run_cost(results["cluster_results"]), 2),
+            duration_s=0,
+            cluster_completed=len(results["cluster_results"]),
+        )
 
         if args.manifesto:
             baseline_path = Path(args.sensitivity_baseline) if args.sensitivity_baseline else None
