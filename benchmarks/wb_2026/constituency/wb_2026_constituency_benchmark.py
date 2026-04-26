@@ -1168,9 +1168,15 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--ensemble-concurrency",
         type=int,
-        default=3,
+        default=1,
         metavar="N",
-        help="Maximum number of ensemble runs within a cluster to run concurrently (default 3).",
+        help=(
+            "Maximum number of ensemble runs within a cluster to run concurrently. "
+            "Default 1 (serial) — pending BRIEF-016 governor-aware timeout fix. "
+            "Setting higher saturates the rate governor under current Anthropic Tier 4 limits "
+            "and causes 600s wait_for timeouts in calibrated_generator. Use cluster-level "
+            "parallelism (--cluster-concurrency) for speed wins instead."
+        ),
     )
     return p.parse_args()
 
