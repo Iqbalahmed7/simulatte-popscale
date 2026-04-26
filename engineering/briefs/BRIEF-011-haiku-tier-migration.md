@@ -6,9 +6,23 @@
 | Owner | **Sonnet** (Opus orchestrating) |
 | Estimate | 2 days |
 | Branch | `phase-1/brief-011-haiku-tier-migration` |
-| Status | 🟢 Open |
+| Status | 🔴 **DEFERRED to Phase 3** (2026-04-26) |
 | Depends on | Phase 0 closed ✓ |
 | Blocks | Phase 1 acceptance |
+
+---
+
+## DEFERRED — 2026-04-26
+
+**Halted during audit.** `cli.py:127-129` documents Sprint A-3 evidence: Haiku for `attribute_filler`/`identity_constructor` causes **−3 to −25pp accuracy drop** on persona attributes. This is a P1 violation (protect the moat) we will not ship.
+
+The cost win this brief promised (65–75%) was almost entirely from migrating these generation-tier callers. Without that, the brief delivers <5% reduction — not worth the engineering time.
+
+**Re-scoped path forward:** This becomes a Phase 3 calibration project. After we have backcasting infrastructure (BRIEF-Phase3-A), we can A/B test Haiku 4.5 against Sonnet on a calibrated benchmark and migrate only callers where parity is shown. Until then, generation stays on Sonnet.
+
+Phase 1 cost target adjusts: $430 → ~$320 (from BRIEF-012 cache + BRIEF-013 structured outputs + BRIEF-014/015 saving retries) instead of $90.
+
+`CORE_SPEC.md` §2 should be updated to mark generation tiers as "Sonnet (pending Phase 3 calibration)".
 
 ---
 

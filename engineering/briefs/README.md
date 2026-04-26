@@ -75,7 +75,7 @@ Three possible verdicts: ✅ Accept · 🔧 Accept with fixes · ❌ Reject.
 | [BRIEF-009](./BRIEF-009-phase-0-acceptance.md) | C2.P0 | Phase 0 forced-failure acceptance run | **Opus** (post-handoff) | ✅ Accepted — all 4 tests PASS |
 | [BRIEF-004A](./BRIEF-004A-credit-detector-graceful-degrade.md) | C2.P0 patch | Credit detector: graceful degrade + test affordance | **Codex** | ✅ Merged |
 | [BRIEF-010](./BRIEF-010-test-debt-cleanup.md) | Cleanup | Pre-existing test debt: 21 popscale failures + sklearn dep | flexible | 🟢 Open · LOW priority |
-| [BRIEF-011](./BRIEF-011-haiku-tier-migration.md) | C2.P1 | Haiku tier migration (cost-critical) | **Sonnet** | 🟢 Open |
+| [BRIEF-011](./BRIEF-011-haiku-tier-migration.md) | C2.P1 | Haiku tier migration (cost-critical) | Sonnet | 🔴 **DEFERRED to Phase 3** — Sprint A-3 evidence shows -3 to -25pp accuracy drop |
 | [BRIEF-012](./BRIEF-012-prompt-cache-discipline.md) | C2.P1 | Prompt cache discipline | **Haiku** | 🟢 Open |
 | [BRIEF-013](./BRIEF-013-structured-outputs.md) | C2.P1 | Structured outputs migration | **Sonnet** | 🟢 Open |
 | [BRIEF-014](./BRIEF-014-parallel-cluster-execution.md) | C2.P1 | Parallel cluster + ensemble execution | **Sonnet** | 🟢 Open |
