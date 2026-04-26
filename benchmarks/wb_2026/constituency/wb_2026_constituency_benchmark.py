@@ -363,77 +363,113 @@ async def run_cluster_ensemble(
     existing_waivers: list[dict] | None = None,
     existing_penalty: float = 0.0,
     on_run_complete: Any | None = None,
+    ensemble_concurrency: int = N_ENSEMBLE_RUNS,
 ) -> dict:
     """Run a swing cluster n_runs times and average vote shares for stability.
 
     Reduces random sampling noise by √n_runs without changing pool calibration.
     Used for the 4 kingmaker clusters where every percentage point matters.
+
+    Ensemble runs that have not been completed yet are launched concurrently
+    (up to ensemble_concurrency at a time) via asyncio.gather so the 3 independent
+    runs overlap rather than running serially.
     """
     logger.info("Ensemble ×%d starting: %s (%d personas/run, %d seats)",
                 n_runs, cluster["name"], cluster["n_personas"], cluster["n_seats"])
-    all_runs_data = list(existing_runs_data or [])
-    all_waivers = list(existing_waivers or [])
-    max_penalty = existing_penalty
-    start_idx = len(all_runs_data)
+    prior_runs_data = list(existing_runs_data or [])
+    prior_waivers = list(existing_waivers or [])
+    prior_penalty = existing_penalty
+    start_idx = len(prior_runs_data)
 
-    for i in range(start_idx, n_runs):
-        logger.info("  [%s] ensemble run %d/%d", cluster["id"], i + 1, n_runs)
-        if emitter is not None:
-            emitter.emit(
-                "ensemble_started",
-                cluster_id=cluster["id"],
-                ensemble_idx=i + 1,
-                ensemble_total=n_runs,
-            )
-        request = build_cluster_request(cluster, manifesto=manifesto)
-        result = await run_niobe_study(request)
-        shares = extract_vote_shares(result)
-        waivers, penalty = _extract_guardrails(result)
+    # Indices of ensemble runs still to execute
+    pending_indices = list(range(start_idx, n_runs))
+    if not pending_indices:
+        # All runs already done (resume case) — just build and return result
+        row = _build_ensemble_cluster_result(
+            cluster=cluster,
+            ensemble_runs_data=prior_runs_data,
+            all_waivers=prior_waivers,
+            max_penalty=prior_penalty,
+            n_runs=n_runs,
+        )
+        return row
+
+    ens_sem = asyncio.Semaphore(max(1, ensemble_concurrency))
+
+    async def _run_one(i: int) -> tuple[int, dict, list, float]:
+        """Execute a single ensemble run and return (i, shares, waivers, penalty)."""
+        async with ens_sem:
+            logger.info("  [%s] ensemble run %d/%d", cluster["id"], i + 1, n_runs)
+            if emitter is not None:
+                await emitter.aemit(
+                    "ensemble_started",
+                    cluster_id=cluster["id"],
+                    ensemble_idx=i + 1,
+                    ensemble_total=n_runs,
+                )
+            request = build_cluster_request(cluster, manifesto=manifesto)
+            result = await run_niobe_study(request)
+            shares = extract_vote_shares(result)
+            waivers, penalty = _extract_guardrails(result)
+            logger.info("    run %d → TMC %.1f%% BJP %.1f%% Left %.1f%% Other %.1f%%",
+                        i + 1, shares["TMC"] * 100, shares["BJP"] * 100,
+                        shares["Left-Congress"] * 100, shares["Others"] * 100)
+            if emitter is not None:
+                await emitter.aemit(
+                    "api_call",
+                    cluster_id=cluster["id"],
+                    requests=max(1, cluster["n_personas"]),
+                    cost_usd=round(cluster["n_personas"] * 0.10, 4),
+                    model="haiku",
+                    cache_hit=False,
+                )
+                await emitter.aemit(
+                    "ensemble_completed",
+                    cluster_id=cluster["id"],
+                    ensemble_idx=i + 1,
+                    result=shares,
+                )
+            return i, shares, waivers, penalty
+
+    # Run all pending ensemble tasks concurrently; collect results in index order
+    outcomes = await asyncio.gather(*[_run_one(i) for i in pending_indices], return_exceptions=True)
+
+    # Merge new results with any prior data; preserve index ordering
+    new_runs_data = list(prior_runs_data)
+    all_waivers = list(prior_waivers)
+    max_penalty = prior_penalty
+    failed_indices: list[int] = []
+    for outcome in outcomes:
+        if isinstance(outcome, BaseException):
+            logger.warning("  [%s] an ensemble run failed: %s", cluster["id"], outcome)
+            failed_indices.append(-1)
+            continue
+        i, shares, waivers, penalty = outcome
+        new_runs_data.append({"run_index": i + 1, "shares": shares})
         all_waivers.extend(waivers)
         max_penalty = max(max_penalty, penalty)
-        all_runs_data.append({"run_index": i + 1, "shares": shares})
-        logger.info("    run %d → TMC %.1f%% BJP %.1f%% Left %.1f%% Other %.1f%%",
-                    i + 1, shares["TMC"] * 100, shares["BJP"] * 100,
-                    shares["Left-Congress"] * 100, shares["Others"] * 100)
-        if emitter is not None:
-            emitter.emit(
-                "api_call",
-                cluster_id=cluster["id"],
-                requests=max(1, cluster["n_personas"]),
-                cost_usd=round(cluster["n_personas"] * 0.10, 4),
-                model="haiku",
-                cache_hit=False,
-            )
-            emitter.emit(
-                "ensemble_completed",
-                cluster_id=cluster["id"],
-                ensemble_idx=i + 1,
-                result=shares,
-            )
-        if on_run_complete is not None:
-            current = _build_ensemble_cluster_result(
-                cluster=cluster,
-                ensemble_runs_data=all_runs_data,
-                all_waivers=all_waivers,
-                max_penalty=max_penalty,
-                n_runs=n_runs,
-            )
-            await on_run_complete(current)
+
+    # Sort by run_index so ensemble_detail is deterministic regardless of completion order
+    new_runs_data.sort(key=lambda r: r["run_index"])
 
     row = _build_ensemble_cluster_result(
         cluster=cluster,
-        ensemble_runs_data=all_runs_data,
+        ensemble_runs_data=new_runs_data,
         all_waivers=all_waivers,
         max_penalty=max_penalty,
         n_runs=n_runs,
     )
+
+    # Fire on_run_complete once with the full aggregated result (mirrors serial behaviour)
+    if on_run_complete is not None:
+        await on_run_complete(row)
 
     logger.info("  %s ensemble avg → TMC %.1f%% BJP %.1f%% Left %.1f%% Other %.1f%%",
                 cluster["id"],
                 row["sim_tmc"] * 100, row["sim_bjp"] * 100,
                 row["sim_left"] * 100, row["sim_others"] * 100)
     if emitter is not None:
-        emitter.emit(
+        await emitter.aemit(
             "cluster_completed",
             cluster_id=cluster["id"],
             ensemble_avg={
@@ -446,22 +482,112 @@ async def run_cluster_ensemble(
     return row
 
 
+# ── Per-cluster sub-file checkpoint helpers ───────────────────────────────────
+# BRIEF-014: each concurrent cluster writes to its own sub-file in a directory,
+# eliminating write contention. At the end of a run the directory is aggregated
+# into the legacy single-file partial JSON for backward compat.
+
+def _partial_dir(run_id: str, partial_root: Path) -> Path:
+    """Return (and create) the per-run partial directory."""
+    d = partial_root / f"{run_id}.partial"
+    d.mkdir(parents=True, exist_ok=True)
+    return d
+
+
+def _write_cluster_subfile(
+    partial_dir: Path,
+    cluster_id: str,
+    row: dict,
+) -> None:
+    """Atomically write a single cluster's result to its own sub-file."""
+    target = partial_dir / f"cluster_{cluster_id}.json"
+    tmp = target.with_suffix(".json.tmp")
+    with tmp.open("w", encoding="utf-8") as fh:
+        json.dump(row, fh, indent=2)
+        fh.flush()
+        os.fsync(fh.fileno())
+    os.replace(tmp, target)
+
+
+def _write_manifest(partial_dir: Path, run_id: str, total_clusters: int) -> None:
+    """Write/update _manifest.json inside the partial directory."""
+    manifest_path = partial_dir / "_manifest.json"
+    payload = {
+        "run_id": run_id,
+        "total_clusters": total_clusters,
+        "last_updated": datetime.now(timezone.utc).isoformat(),
+    }
+    tmp = manifest_path.with_suffix(".json.tmp")
+    with tmp.open("w", encoding="utf-8") as fh:
+        json.dump(payload, fh, indent=2)
+        fh.flush()
+        os.fsync(fh.fileno())
+    os.replace(tmp, manifest_path)
+
+
+def _load_partial_dir(partial_dir: Path) -> tuple[str | None, list[dict]]:
+    """Load all cluster sub-files from a partial directory.
+
+    Returns (run_id, cluster_results_list).
+    """
+    manifest_path = partial_dir / "_manifest.json"
+    run_id: str | None = None
+    if manifest_path.exists():
+        try:
+            run_id = json.loads(manifest_path.read_text(encoding="utf-8")).get("run_id")
+        except Exception:
+            pass
+
+    cluster_results: list[dict] = []
+    for p in sorted(partial_dir.glob("cluster_*.json")):
+        try:
+            cluster_results.append(json.loads(p.read_text(encoding="utf-8")))
+        except Exception:
+            logger.warning("Could not read cluster sub-file %s — skipping", p)
+    return run_id, cluster_results
+
+
+def _load_resume_source(resume_from: Path) -> tuple[str, list[dict]]:
+    """Load a resume source that is either:
+
+    * A legacy single-file `<run_id>.partial.json`, OR
+    * A new directory-based partial `<run_id>.partial/`
+
+    Returns (run_id, cluster_results).
+    """
+    if resume_from.is_dir():
+        # New directory-based format
+        run_id, cluster_results = _load_partial_dir(resume_from)
+        if run_id is None:
+            # Fallback: infer run_id from directory name  e.g. "20240101_120000.partial"
+            run_id = resume_from.name.replace(".partial", "")
+        return run_id, cluster_results
+    else:
+        # Legacy single-file format
+        with resume_from.open(encoding="utf-8") as _f:
+            data = json.load(_f)
+        return str(data["run_id"]), list(data.get("cluster_results", []))
+
+
 async def run_all_clusters(
     cluster_ids: list[str] | None = None,
     manifesto: str | None = None,
     resume_from: Path | None = None,
     emitter: RunEventEmitter | None = None,
     run_id_override: str | None = None,
+    *,
+    cluster_concurrency: int = 5,
+    ensemble_concurrency: int = N_ENSEMBLE_RUNS,
 ) -> dict:
     """Run all (or selected) clusters and produce consolidated results.
 
     Args:
-        cluster_ids: Restrict to these cluster IDs. None = all clusters.
-        manifesto:   Manifesto context injection mode (tmc|bjp|both|None).
-        resume_from: Path to a .partial.json from an interrupted run. Completed
-                     clusters are skipped and their results seeded into this run.
-                     The original run_id is preserved so the partial file is
-                     updated in-place.
+        cluster_ids:           Restrict to these cluster IDs. None = all clusters.
+        manifesto:             Manifesto context injection mode (tmc|bjp|both|None).
+        resume_from:           Path to a previous partial (file OR directory). Completed
+                               clusters are skipped and their results seeded into this run.
+        cluster_concurrency:   Max clusters running simultaneously (default 5).
+        ensemble_concurrency:  Max ensemble runs within a cluster simultaneously (default 3).
     """
     target_clusters = CLUSTERS
     if cluster_ids:
@@ -470,26 +596,34 @@ async def run_all_clusters(
             raise ValueError(f"Unknown cluster IDs: {cluster_ids}")
 
     if resume_from is not None:
-        with resume_from.open() as _f:
-            _partial_data = json.load(_f)
-        run_id = _partial_data["run_id"]
-        cluster_results = list(_partial_data.get("cluster_results", []))
+        run_id, cluster_results = _load_resume_source(resume_from)
     else:
         run_id = run_id_override or datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
         cluster_results = []
 
-    partial_path = Path(os.getenv("SIMULATTE_PARTIAL_DIR", "/tmp/wb_reruns")) / f"{run_id}.partial.json"
-    partial_path.parent.mkdir(parents=True, exist_ok=True)
+    partial_root = Path(os.getenv("SIMULATTE_PARTIAL_DIR", "/tmp/wb_reruns"))
+    partial_root.mkdir(parents=True, exist_ok=True)
+    # Legacy single-file path (kept for final aggregation + backward compat)
+    partial_path = partial_root / f"{run_id}.partial.json"
+    # Per-cluster directory (BRIEF-014)
+    pdir = _partial_dir(run_id, partial_root)
+    _write_manifest(pdir, run_id, len(target_clusters))
 
     rows_by_id: dict[str, dict] = {row["id"]: row for row in cluster_results}
+    # Seed per-cluster sub-files for any already-completed clusters (resume case)
+    for row in cluster_results:
+        _write_cluster_subfile(pdir, row["id"], row)
+
     already_done = {row["id"] for row in cluster_results if _is_cluster_complete(row)}
     remaining = [c for c in target_clusters if c["id"] not in already_done]
 
     logger.info(
-        "%s WB 2026 constituency run | id=%s | clusters=%d/%d | total_personas=%d",
+        "%s WB 2026 constituency run | id=%s | clusters=%d/%d | total_personas=%d | "
+        "cluster_concurrency=%d ensemble_concurrency=%d",
         "Resuming" if resume_from else "Starting",
         run_id, len(remaining), len(target_clusters),
         sum(c["n_personas"] for c in remaining),
+        cluster_concurrency, ensemble_concurrency,
     )
 
     monitor = get_credit_monitor()
@@ -498,82 +632,96 @@ async def run_all_clusters(
     logger.info("Pre-flight credit OK: balance $%.2f (buffer $%.2f)", balance, monitor.buffer_usd)
     await monitor.start_background_monitor()
 
-    try:
-        for cluster in target_clusters:
-            cluster_id = cluster["id"]
-            if cluster_id in already_done:
-                continue
+    # Lock used to serialise writes to rows_by_id (shared across concurrent tasks)
+    rows_lock = asyncio.Lock()
+    cluster_sem = asyncio.Semaphore(max(1, cluster_concurrency))
+    failed_clusters: list[str] = []
+
+    async def _run_one_cluster(cluster: dict) -> dict | Exception:
+        """Bounded cluster task; returns result dict or an exception."""
+        cluster_id = cluster["id"]
+        async with cluster_sem:
             if monitor.is_halt_requested():
-                raise CreditExhaustedError(monitor.halt_snapshot().get("reason", "credit halt requested"))
+                exc = CreditExhaustedError(monitor.halt_snapshot().get("reason", "credit halt"))
+                return exc
 
-            if cluster_id in SWING_CLUSTER_IDS:
-                existing = rows_by_id.get(cluster_id)
-                existing_runs_data = _normalize_partial_ensemble_runs(existing) if existing else []
-                existing_waivers = list((existing or {}).get("gate_waivers") or [])
-                existing_penalty = float((existing or {}).get("confidence_penalty", 0.0) or 0.0)
+            try:
+                if cluster_id in SWING_CLUSTER_IDS:
+                    async with rows_lock:
+                        existing = rows_by_id.get(cluster_id)
+                    existing_runs_data = _normalize_partial_ensemble_runs(existing) if existing else []
+                    existing_waivers = list((existing or {}).get("gate_waivers") or [])
+                    existing_penalty = float((existing or {}).get("confidence_penalty", 0.0) or 0.0)
 
-                async def _on_ensemble_run(current_row: dict) -> None:
-                    rows_by_id[cluster_id] = current_row
+                    async def _on_ensemble_done(current_row: dict) -> None:
+                        async with rows_lock:
+                            rows_by_id[cluster_id] = current_row
+                        _write_cluster_subfile(pdir, cluster_id, current_row)
+                        monitor.update_progress(
+                            run_id=run_id,
+                            cluster_id=cluster_id,
+                            ensemble_idx=int(current_row.get("ensemble_runs_complete", 0)),
+                            ensemble_total=N_ENSEMBLE_RUNS,
+                            checkpoint_path=str(partial_path),
+                        )
+
+                    row = await run_cluster_ensemble(
+                        cluster,
+                        n_runs=N_ENSEMBLE_RUNS,
+                        manifesto=manifesto,
+                        emitter=emitter,
+                        existing_runs_data=existing_runs_data,
+                        existing_waivers=existing_waivers,
+                        existing_penalty=existing_penalty,
+                        on_run_complete=_on_ensemble_done,
+                        ensemble_concurrency=ensemble_concurrency,
+                    )
+                else:
+                    row = await run_cluster(cluster, manifesto=manifesto, emitter=emitter)
+                    row["is_partial"] = False
+                    row["ensemble_runs_complete"] = 1
+                    row["ensemble_runs_total"] = 1
                     monitor.update_progress(
                         run_id=run_id,
                         cluster_id=cluster_id,
-                        ensemble_idx=int(current_row.get("ensemble_runs_complete", 0)),
-                        ensemble_total=N_ENSEMBLE_RUNS,
+                        ensemble_idx=1,
+                        ensemble_total=1,
                         checkpoint_path=str(partial_path),
                     )
-                    _write_partial_results(
-                        partial_path,
-                        run_id=run_id,
-                        cluster_results=_ordered_cluster_results(target_clusters, rows_by_id),
-                        status="in_progress",
-                        is_partial=True,
-                    )
 
-                row = await run_cluster_ensemble(
-                    cluster,
-                    n_runs=N_ENSEMBLE_RUNS,
-                    manifesto=manifesto,
-                    emitter=emitter,
-                    existing_runs_data=existing_runs_data,
-                    existing_waivers=existing_waivers,
-                    existing_penalty=existing_penalty,
-                    on_run_complete=_on_ensemble_run,
-                )
-                rows_by_id[cluster_id] = row
-                if int(row.get("ensemble_runs_complete", 0)) == len(existing_runs_data):
-                    # Ensure a partial file exists even when no new run executed.
-                    _write_partial_results(
-                        partial_path,
-                        run_id=run_id,
-                        cluster_results=_ordered_cluster_results(target_clusters, rows_by_id),
-                        status="in_progress",
-                        is_partial=True,
-                    )
-            else:
-                row = await run_cluster(cluster, manifesto=manifesto, emitter=emitter)
-                row["is_partial"] = False
-                row["ensemble_runs_complete"] = 1
-                row["ensemble_runs_total"] = 1
-                rows_by_id[cluster_id] = row
-                monitor.update_progress(
-                    run_id=run_id,
-                    cluster_id=cluster_id,
-                    ensemble_idx=1,
-                    ensemble_total=1,
-                    checkpoint_path=str(partial_path),
-                )
-                _write_partial_results(
-                    partial_path,
-                    run_id=run_id,
-                    cluster_results=_ordered_cluster_results(target_clusters, rows_by_id),
-                    status="in_progress",
-                    is_partial=True,
-                )
+                async with rows_lock:
+                    rows_by_id[cluster_id] = row
+                _write_cluster_subfile(pdir, cluster_id, row)
+                return row
 
-            if monitor.is_halt_requested():
-                raise CreditExhaustedError(monitor.halt_snapshot().get("reason", "credit halt requested"))
+            except Exception as exc:  # noqa: BLE001
+                logger.error("Cluster %s failed: %s", cluster_id, exc, exc_info=True)
+                return exc
+
+    try:
+        # Fan out: all remaining clusters run concurrently, bounded by cluster_sem
+        outcomes = await asyncio.gather(
+            *[_run_one_cluster(c) for c in target_clusters if c["id"] not in already_done],
+            return_exceptions=True,
+        )
+
+        for cluster, outcome in zip(
+            [c for c in target_clusters if c["id"] not in already_done],
+            outcomes,
+        ):
+            if isinstance(outcome, BaseException):
+                failed_clusters.append(cluster["id"])
+                logger.error("Cluster %s raised: %s", cluster["id"], outcome)
 
         final_rows = _ordered_cluster_results(target_clusters, rows_by_id)
+
+        # Surface failures in report but don't abort if some clusters succeeded
+        if failed_clusters:
+            logger.warning(
+                "Run %s completed with %d failed cluster(s): %s",
+                run_id, len(failed_clusters), ", ".join(failed_clusters),
+            )
+
         if not all(_is_cluster_complete(row) for row in final_rows):
             _write_partial_results(
                 partial_path,
@@ -600,7 +748,8 @@ async def run_all_clusters(
             is_partial=False,
         )
     except CreditExhaustedError:
-        halted_rows = _ordered_cluster_results(target_clusters, rows_by_id)
+        async with rows_lock:
+            halted_rows = _ordered_cluster_results(target_clusters, rows_by_id)
         _write_partial_results(
             partial_path,
             run_id=run_id,
@@ -613,7 +762,7 @@ async def run_all_clusters(
     finally:
         await monitor.stop_background_monitor()
 
-    return {
+    result: dict[str, Any] = {
         "run_id": run_id,
         "run_date": datetime.now(timezone.utc).isoformat(),
         "n_clusters": len(final_rows),
@@ -631,6 +780,9 @@ async def run_all_clusters(
         "confidence_penalty": confidence_penalty,
         "tmc_majority": seat_result["tmc_majority"],
     }
+    if failed_clusters:
+        result["failed_clusters"] = failed_clusters
+    return result
 
 
 def _aggregate_confidence_penalty(cluster_results: list[dict]) -> float:
@@ -1005,6 +1157,20 @@ def parse_args() -> argparse.Namespace:
         "--force-over-budget",
         action="store_true",
         help="Allow run to proceed when estimated cost exceeds --budget-ceiling.",
+    )
+    p.add_argument(
+        "--cluster-concurrency",
+        type=int,
+        default=5,
+        metavar="N",
+        help="Maximum number of clusters to run concurrently (default 5).",
+    )
+    p.add_argument(
+        "--ensemble-concurrency",
+        type=int,
+        default=3,
+        metavar="N",
+        help="Maximum number of ensemble runs within a cluster to run concurrently (default 3).",
     )
     return p.parse_args()
 
