@@ -1,0 +1,11 @@
+constituency_code,constituency_name,tmc_pct,bjp_pct,left_pct,congress_pct,others_pct,total_votes,winner
+WB001,Darjeeling,32.1,61.2,4.3,1.1,1.3,45231,BJP
+WB002,Kalimpong,28.4,65.1,3.2,1.2,2.1,42123,BJP
+WB003,Kurseong,35.2,58.9,3.5,1.1,1.3,38451,BJP
+WB004,Siliguri,48.2,42.3,6.1,1.2,2.2,62341,TMC
+WB005,Phansidewa,42.1,48.9,5.2,1.8,2.0,35123,BJP
+WB006,Raiganj,56.8,35.2,4.1,2.1,1.8,48123,TMC
+WB007,Englishbazar,52.3,39.2,5.1,1.8,1.6,51234,TMC
+WB008,Mothabari,48.9,42.1,5.3,2.1,1.6,38234,TMC
+WB009,Ratua,45.2,46.8,4.9,1.8,1.3,32123,BJP
+WB010,Harishchandrapur,44.1,47.3,5.2,1.9,1.5,35421,BJP
