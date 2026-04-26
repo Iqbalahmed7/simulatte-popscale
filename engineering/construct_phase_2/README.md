@@ -34,7 +34,7 @@ Then open the briefs in `../briefs/` (BRIEF-004 onwards).
 | Phase | Window | Status |
 |---|---|---|
 | Phase 0 — Stop the bleeding | Week 1 | ✅ Closed 2026-04-26 · all 4 acceptance tests PASS |
-| Phase 1 — Cost overhaul | Weeks 2–3 | 🟢 5 briefs open (BRIEF-011 to 015) — Sonnet/Haiku allocation |
+| Phase 1 — Cost overhaul | 2026-04-26 | ✅ 4 briefs merged · 011 deferred to Phase 3 (Sprint A-3 quality block) |
 | Phase 2 — Speed + concurrency | Weeks 4–5 | ⚪ Not started |
 | Phase 3 — Prediction quality | Weeks 6–10 | ⚪ Not started |
 | Phase 4 — Production hardening | Weeks 11–12 | ⚪ Not started |
