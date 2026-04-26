@@ -1056,19 +1056,23 @@ def _print_sensitivity_table(payload: dict) -> None:
 
 
 def print_cluster_vote_shares(cluster_results: list[dict]) -> None:
-    """Print cluster-level vote share table."""
-    print("\n" + "═" * 90)
+    """Print cluster-level vote share table with variance signal."""
+    print("\n" + "═" * 110)
     print("  WB 2026 CONSTITUENCY — Cluster Vote Shares vs 2021 Baseline")
-    print("═" * 90)
+    print("═" * 110)
     print(f"  {'Cluster':<38} {'TMCSim':>7} {'TMC21':>7} {'BJPSim':>7} {'BJP21':>7} "
-          f"{'LftSim':>7} {'OthSim':>7}")
-    print("  " + "─" * 86)
+          f"{'LftSim':>7} {'OthSim':>7} {'Var(pp)':>7} {'Status':>12}")
+    print("  " + "─" * 106)
     for r in cluster_results:
+        variance_pp = r.get("variance_pp", 0.0)
+        recommendation = r.get("recommendation", "stable")
+        status = "RERUN" if recommendation == "rerun_recommended_high_variance" else "stable"
         print(f"  {r['name'][:37]:<38} "
               f"{r['sim_tmc']:>6.1%} {r['tmc_2021']:>6.1%}  "
               f"{r['sim_bjp']:>6.1%} {r['bjp_2021']:>6.1%}  "
-              f"{r['sim_left']:>6.1%} {r['sim_others']:>6.1%}")
-    print("═" * 90)
+              f"{r['sim_left']:>6.1%} {r['sim_others']:>6.1%}  "
+              f"{variance_pp:>6.2f}pp {status:>12}")
+    print("═" * 110)
 
 
 def save_results(results: dict, output_dir: Path) -> Path:
