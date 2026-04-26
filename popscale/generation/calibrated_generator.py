@@ -58,6 +58,7 @@ if str(_PG_ROOT) not in sys.path:
 from src.orchestrator.brief import PersonaGenerationBrief          # noqa: E402
 from src.orchestrator.invoke import invoke_persona_generator        # noqa: E402
 from src.schema.persona import PersonaRecord                        # noqa: E402
+from src.utils.rate_governor import GovernorTimeout                 # noqa: E402
 
 from ..calibration.calibrator import PersonaSegment, calibrate     # noqa: E402
 from ..calibration.population_spec import PopulationSpec           # noqa: E402
@@ -74,10 +75,11 @@ _PG_MAX_PER_BRIEF = 10
 # rate-limit-induced timeouts. 3 concurrent calls is a safe upper bound.
 _MAX_CONCURRENT_PG_CALLS = 3
 
-# Per-brief timeout in seconds. 300s is too tight when multiple segments
-# are competing for PG capacity. 600s (10 min) accommodates briefs of
-# up to ~100 personas under moderate load.
-_PG_BRIEF_TIMEOUT_S = 600.0
+# BRIEF-016: governor-aware timeout. The rate governor's acquire() raises
+# GovernorTimeout after this many seconds of queue-blocking, so the API call
+# is never orphaned by an outer asyncio.wait_for. Configurable via env var.
+import os as _os                                                    # noqa: E402
+_PG_GOVERNOR_TIMEOUT_S: float = float(_os.getenv("SIMULATTE_GOVERNOR_TIMEOUT_S", "600"))
 
 
 # ── Result types ──────────────────────────────────────────────────────────────
@@ -244,16 +246,18 @@ async def run_calibrated_generation(
                         batch_idx + 1, len(sub_batches), batch_count, prefix)
 
             try:
-                pg_result = await asyncio.wait_for(
-                    invoke_persona_generator(brief),
-                    timeout=_PG_BRIEF_TIMEOUT_S,
-                )
-            except asyncio.TimeoutError:
+                # BRIEF-016: governor-aware timeout. GovernorTimeout is raised by
+                # RateGovernor.acquire() when queue-blocking exceeds
+                # _PG_GOVERNOR_TIMEOUT_S, so the API call is never orphaned.
+                pg_result = await invoke_persona_generator(brief)
+            except GovernorTimeout as exc:
                 logger.error(
-                    "  segment %d sub-batch %d timed out after %.0fs — skipping",
-                    seg_idx, batch_idx, _PG_BRIEF_TIMEOUT_S,
+                    "  segment %d sub-batch %d governor timeout after %.0fs — skipping (%s)",
+                    seg_idx, batch_idx, _PG_GOVERNOR_TIMEOUT_S, exc,
                 )
-                seg_warnings.append(f"Sub-batch {batch_idx}: timed out after {_PG_BRIEF_TIMEOUT_S:.0f}s")
+                seg_warnings.append(
+                    f"Sub-batch {batch_idx}: governor timeout after {_PG_GOVERNOR_TIMEOUT_S:.0f}s"
+                )
                 continue
             except Exception as exc:
                 logger.error(
