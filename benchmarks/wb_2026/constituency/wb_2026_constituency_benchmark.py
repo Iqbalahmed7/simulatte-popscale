@@ -1168,14 +1168,13 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--ensemble-concurrency",
         type=int,
-        default=1,
+        default=3,  # BRIEF-016: re-enabled; governor-aware timeout replaces outer wait_for
         metavar="N",
         help=(
             "Maximum number of ensemble runs within a cluster to run concurrently. "
-            "Default 1 (serial) — pending BRIEF-016 governor-aware timeout fix. "
-            "Setting higher saturates the rate governor under current Anthropic Tier 4 limits "
-            "and causes 600s wait_for timeouts in calibrated_generator. Use cluster-level "
-            "parallelism (--cluster-concurrency) for speed wins instead."
+            "Default 3 (restored by BRIEF-016 — governor-aware timeout coordination). "
+            "The rate governor's acquire() now raises GovernorTimeout instead of blocking "
+            "indefinitely, so ensemble parallelism no longer causes spurious wait_for skips."
         ),
     )
     return p.parse_args()
