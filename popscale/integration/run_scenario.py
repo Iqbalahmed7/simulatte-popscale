@@ -51,6 +51,7 @@ async def run_scenario(
     tier: SimulationTier = SimulationTier.VOLUME,
     llm_client: Any = None,
     run_id: Optional[str] = None,
+    manifesto_context: Optional[str] = None,
 ) -> PopulationResponse:
     """Run a single persona against a PopScale Scenario.
 
@@ -62,6 +63,8 @@ async def run_scenario(
         llm_client: Optional Anthropic client. If None, the Persona Generator
                     creates one internally.
         run_id:   Optional run identifier for tracing across a population batch.
+        manifesto_context: Optional cached system block for manifesto sensitivity
+                          injection (PopScale Scenario-level context).
 
     Returns:
         A PopulationResponse. Never raises — returns a degraded response on
@@ -71,14 +74,17 @@ async def run_scenario(
     stimulus = render_stimulus(scenario)
     decision_scenario_base = render_decision_scenario(scenario)
 
-    # Step 2: Append domain framing to the decision scenario
+    # Step 2: Generate domain framing (persona-specific, domain-aware language)
     # This translates the persona's domain-neutral attributes into domain language
+    # It stays in decision_scenario, not emitted as separate system block,
+    # because it's persona-specific and varies per persona (not cacheable across cluster)
     domain_framing = frame_persona_for_domain(persona, scenario.domain)
     decision_scenario = decision_scenario_base + domain_framing
 
     # Step 3: Run through the Persona Generator's cognitive loop
     # run_loop handles perceive → accumulate → (reflect) → decide internally
     # It also manages memory writes, importance accumulation, and reflection triggers
+    # manifesto_context is optionally passed as a separate cacheable system block
     try:
         updated_persona, loop_result = await asyncio.wait_for(
             run_loop(
@@ -87,6 +93,7 @@ async def run_scenario(
                 decision_scenario=decision_scenario,
                 llm_client=llm_client,
                 tier=tier,
+                manifesto_context=manifesto_context,
             ),
             timeout=90.0,
         )
@@ -136,6 +143,7 @@ async def run_scenario_batch(
     llm_client: Any = None,
     run_id: Optional[str] = None,
     concurrency: int = 20,
+    manifesto_context: Optional[str] = None,
 ) -> list[PopulationResponse]:
     """Run a scenario against a list of personas with controlled concurrency.
 
@@ -145,6 +153,8 @@ async def run_scenario_batch(
 
     Args:
         concurrency: Max simultaneous LLM calls. Set lower if hitting rate limits.
+        manifesto_context: Optional cached system block for manifesto sensitivity
+                          injection (same for all personas in batch).
 
     Returns:
         List of PopulationResponse in the same order as input personas.
@@ -164,6 +174,7 @@ async def run_scenario_batch(
                 tier=tier,
                 llm_client=llm_client,
                 run_id=run_id,
+                manifesto_context=manifesto_context,
             )
 
     tasks = [_bounded_run(p, i) for i, p in enumerate(personas)]
