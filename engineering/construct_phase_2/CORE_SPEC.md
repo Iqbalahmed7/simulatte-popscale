@@ -59,16 +59,18 @@ This contract does not change in Phase 2.
 
 ---
 
-## 2. Model tiering policy (post-Phase-1)
+## 2. Model tiering policy (as-shipped 2026-04-26)
 
-| Stage | Model | Max tokens | Why |
+| Stage | Model | Max tokens | Status |
 |---|---|---|---|
-| Persona attribute generation | `claude-haiku-4-5-20251001` | 2048 | Structured slot-fill |
-| Cohort assembly + gates | `claude-haiku-4-5-20251001` | 2048 | Logic checks |
-| `perceive()` | `claude-haiku-4-5-20251001` | 2048 | Already correct |
-| Memory writes | `claude-haiku-4-5-20251001` | 2048 | Already correct |
+| Persona attribute generation | **`claude-sonnet-4-6`** | 2048 | Stays Sonnet — Sprint A-3 showed -3 to -25pp accuracy on Haiku. Re-evaluate after Phase 3 calibration framework lands. |
+| Cohort assembly + gates | **`claude-sonnet-4-6`** | 2048 | Stays Sonnet — same evidence. |
+| `perceive()` | `claude-haiku-4-5-20251001` | 2048 | Haiku ✓ |
+| Memory writes | `claude-haiku-4-5-20251001` | 2048 | Haiku ✓ |
 | `reflect()` | `claude-sonnet-4-6-20251015` | 4096 | Cross-memory reasoning |
-| `decide()` | `claude-sonnet-4-6-20251015` | 4096 | Most consequential — keep premium |
+| `decide()` | `claude-sonnet-4-6-20251015` | 4096 | Inviolable — most consequential call |
+
+**Original ambition:** $430 → $90 study via tier migration. **Actual ship:** $430 → ~$320 via cache + structured outputs + cluster parallelism. The 5-10× cost goal is deferred to Phase 3 calibration completing.
 
 **Rule:** No `decide()` call may be downgraded to Haiku without an A/B test showing parity on a backcast benchmark.
 
