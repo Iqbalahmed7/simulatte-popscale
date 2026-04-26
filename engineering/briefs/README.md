@@ -74,7 +74,14 @@ Three possible verdicts: ✅ Accept · 🔧 Accept with fixes · ❌ Reject.
 | [BRIEF-008](./BRIEF-008-cost-dashboard-mvp.md) | C2.P0 | Cost & progress dashboard MVP | **Cursor** | ✅ Merged |
 | [BRIEF-009](./BRIEF-009-phase-0-acceptance.md) | C2.P0 | Phase 0 forced-failure acceptance run | **Opus** (post-handoff) | ✅ Accepted — all 4 tests PASS |
 | [BRIEF-004A](./BRIEF-004A-credit-detector-graceful-degrade.md) | C2.P0 patch | Credit detector: graceful degrade + test affordance | **Codex** | ✅ Merged |
-| [BRIEF-010](./BRIEF-010-test-debt-cleanup.md) | Cleanup | Pre-existing test debt: 21 popscale failures + sklearn dep | **Codex or Cursor** | 🟢 Open · LOW priority |
+| [BRIEF-010](./BRIEF-010-test-debt-cleanup.md) | Cleanup | Pre-existing test debt: 21 popscale failures + sklearn dep | flexible | 🟢 Open · LOW priority |
+| [BRIEF-011](./BRIEF-011-haiku-tier-migration.md) | C2.P1 | Haiku tier migration (cost-critical) | **Sonnet** | 🟢 Open |
+| [BRIEF-012](./BRIEF-012-prompt-cache-discipline.md) | C2.P1 | Prompt cache discipline | **Haiku** | 🟢 Open |
+| [BRIEF-013](./BRIEF-013-structured-outputs.md) | C2.P1 | Structured outputs migration | **Sonnet** | 🟢 Open |
+| [BRIEF-014](./BRIEF-014-parallel-cluster-execution.md) | C2.P1 | Parallel cluster + ensemble execution | **Sonnet** | 🟢 Open |
+| [BRIEF-015](./BRIEF-015-rate-limit-governor.md) | C2.P1 | Rate-limit governor (token bucket) | **Haiku** | 🟢 Open |
+
+**Phase 1 model allocation rationale**: Sonnet owns work that needs judgment (BRIEF-011 cost/quality tradeoffs, BRIEF-013 schema design, BRIEF-014 concurrency correctness). Haiku owns mechanical work with well-specified contracts (BRIEF-012 cache_control insertion, BRIEF-015 textbook token-bucket algorithm). Opus orchestrates and reviews.
 
 **Sprint 1** (BRIEF-001 through 003) closed 2026-04-25 with the WB 2026 manifesto sensitivity rerun delivered.
 **Construct Phase 2 / Phase 0** (BRIEF-004 through 008) opens 2026-04-25. Each brief on its own branch: `phase-0/brief-NNN-<slug>` off `main`. Briefs are parallel-safe and can ship in any order.
