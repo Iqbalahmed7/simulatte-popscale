@@ -16,4 +16,4 @@ dependencies = [
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["popscale*"]
+include = ["popscale", "popscale.*"]
