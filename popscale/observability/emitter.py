@@ -5,7 +5,7 @@ from __future__ import annotations
 import asyncio
 import json
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
@@ -23,39 +23,25 @@ def _default_runs_root() -> Path:
 class RunEventEmitter:
     run_id: str
     runs_root: Path | None = None
-    # asyncio.Lock for serialising concurrent emit() calls so events.jsonl
-    # timestamps remain monotonic under concurrent cluster execution.
-    # Created lazily on first use so the emitter can be instantiated outside
-    # an event loop (e.g. in tests that call asyncio.run()).
-    _lock: asyncio.Lock | None = field(default=None, init=False, repr=False)
 
     def __post_init__(self) -> None:
         self.runs_root = (self.runs_root or _default_runs_root()).resolve()
         self.run_dir = self.runs_root / self.run_id
         self.events_path = self.run_dir / "events.jsonl"
         self.run_dir.mkdir(parents=True, exist_ok=True)
+        # asyncio.Lock for serialising concurrent aemit() calls so events.jsonl
+        # timestamps remain monotonic under concurrent cluster execution (BRIEF-014).
+        # Stored as a plain attr so it is created lazily inside the running event
+        # loop, avoiding "no running event loop" errors at construction time.
+        self._lock: asyncio.Lock | None = None
 
     def _get_lock(self) -> asyncio.Lock:
-        """Return (creating if needed) the asyncio.Lock for this emitter.
-
-        The lock is bound to the running event loop at first access. Creating
-        it lazily avoids the "no running event loop" error when the emitter is
-        instantiated before asyncio.run() is called.
-        """
         if self._lock is None:
             self._lock = asyncio.Lock()
         return self._lock
 
     def emit(self, event_type: str, **payload: Any) -> dict[str, Any]:
-        """Synchronous emit — safe to call from both sync and async contexts.
-
-        Under concurrent async execution callers should prefer ``aemit`` so
-        that the asyncio.Lock is actually respected.  This sync version
-        acquires no lock (file-level writes are atomic enough for single-
-        threaded asyncio when called outside a gather).  It exists so that
-        code paths that are *not* running inside gather (e.g. the initial
-        run_started event) keep working without await.
-        """
+        """Synchronous append — safe to call outside gather."""
         event: dict[str, Any] = {
             "ts": datetime.now(timezone.utc).isoformat(),
             "unix_ts": time.time(),
@@ -70,8 +56,8 @@ class RunEventEmitter:
     async def aemit(self, event_type: str, **payload: Any) -> dict[str, Any]:
         """Async-safe emit serialised via asyncio.Lock.
 
-        Use this inside coroutines that may run concurrently (e.g. inside
-        asyncio.gather) to guarantee monotonic timestamps in events.jsonl.
+        Use inside coroutines running concurrently (asyncio.gather) to keep
+        events.jsonl timestamps monotonic (BRIEF-014).
         """
         async with self._get_lock():
             return self.emit(event_type, **payload)
