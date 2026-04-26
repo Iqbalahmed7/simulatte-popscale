@@ -1,0 +1,11 @@
+county_fips,county_name,state_abbr,trump_pct,harris_pct,other_pct,total_votes,turnout_pct
+1001,Autauga County,AL,65.2,32.1,2.7,14521,42.3
+1003,Baldwin County,AL,62.8,35.2,2.0,41232,41.1
+1005,Barbour County,AL,54.3,42.9,2.8,3912,38.9
+1007,Bibb County,AL,61.1,36.2,2.7,2341,37.2
+1009,Blount County,AL,71.3,26.5,2.2,14923,45.1
+1011,Bullock County,AL,23.4,73.9,2.7,1521,35.6
+1013,Butler County,AL,54.2,43.1,2.7,2891,36.8
+1015,Calhoun County,AL,45.2,52.3,2.5,11432,41.2
+1017,Chambers County,AL,46.1,51.8,2.1,2834,38.9
+1019,Cherokee County,AL,68.2,29.4,2.4,3142,39.7
