@@ -37,16 +37,37 @@ CLUSTERS: list[dict] = [
         "n_personas": 40,
         "marginal_seats_2021": 5,
         "context_note": (
-            "You are voting in the Murshidabad district — Bengal's most Muslim-majority "
-            "district (66% Muslim). TMC won 20 of 22 seats here in 2021. "
-            "In 2026, the Supplementary Electoral Rolls process deleted 4.6 lakh voters "
-            "from Murshidabad — predominantly Muslim names — raising fears of systematic "
-            "disenfranchisement. AIMIM-AJUP alliance is contesting all seats here, "
-            "led by Humayun Kabir (ex-TMC) who left over corruption grievances. "
-            "The central question: do you vote TMC as a defensive anti-BJP bloc, "
-            "or register protest via AIMIM-AJUP?"
+            "Murshidabad district, 66% Muslim. TMC won 20 of 22 seats in 2021. "
+            "In 2026: 4.6 lakh voter-roll deletions, predominantly Muslim names (SIR process). "
+            "TMC welfare schemes (Lakshmir Bhandar, Swasthya Sathi) remain active. "
+            "Cut-money corruption and Sandeshkhali are live grievances against TMC. "
+            "\n"
+            "KEY EVENT — 10 April 2026: AIMIM-AJUP alliance collapsed. "
+            "TMC released a sting video alleging Humayun Kabir (AJUP founder, ex-TMC MLA) "
+            "discussed a Rs 1,000 crore deal with BJP for a Deputy CM post. "
+            "AIMIM (Owaisi) immediately withdrew, citing integrity concerns; now contesting "
+            "11 Bengal seats independently. Humayun Kabir called the video an AI deepfake "
+            "and declared AJUP would contest 182 seats solo. BJP denied any connection. "
+            "\n"
+            "Four vote destinations now exist: "
+            "(1) TMC — defensive, welfare-based, hold-your-nose anti-BJP consolidation. "
+            "(2) AIMIM solo — Owaisi's principled exit, 11 focused seats. "
+            "(3) AJUP solo — Humayun's local credibility vs deepfake doubt, 182-seat scatter. "
+            "(4) INDI Alliance (Congress-Left) — Adhir Ranjan's residual Murshidabad base, "
+            "secular channel, doesn't split Muslim vote the way AJUP does. "
+            "BJP benefits only via Hindu consolidation (28-32%) if Muslim vote fragments. "
+            "\n"
+            "2026 MANIFESTO WRINKLE: BJP Sankalp Patra (April 10, same day as coalition break) "
+            "promises Uniform Civil Code within 6 months of forming govt — widely read as "
+            "targeting Muslim personal law (marriage, inheritance, adoption). This sharpens "
+            "the defensive consolidation question: among the four destinations (TMC/AIMIM/AJUP/"
+            "INDI), which can actually stop a BJP government that would implement UCC? "
+            "TMC has the strongest organisational capacity to win seats and block BJP. "
+            "AIMIM/AJUP split the Muslim vote at the seat level. INDI (Congress-Left) "
+            "is a secular channel without fragmentation risk. UCC threat adds weight to the "
+            "'who can actually stop BJP' criterion over 'who best represents us'."
         ),
-        "swing_notes": "SIR 460k deletions; AIMIM-AJUP fragmentation; Muslim-TMC defensive vote vs protest",
+        "swing_notes": "SIR 460k deletions; April 10 AIMIM-AJUP coalition break via sting video; four-way Muslim vote fragmentation (TMC/AIMIM/AJUP/INDI); BJP UCC promise sharpens defensive consolidation; BJP upside via fragmentation pluralities",
         "key_seats": ["Bhagabangola", "Jalangi", "Farakka", "Domkal", "Kandi"],
     },
     {
@@ -80,21 +101,34 @@ CLUSTERS: list[dict] = [
         "bjp_2021": 0.30,
         "left_2021": 0.05,
         "others_2021": 0.00,
-        "n_personas": 60,
+        "n_personas": 25,
         "marginal_seats_2021": 18,
         "context_note": (
             "You are voting in the Matua belt — Nadia and North 24 Parganas — home to "
             "1.3 crore Matua (Namasudra) voters, Hindu SC refugees from Bangladesh. "
             "BJP won this belt in 2021 on the CAA promise of fast-track citizenship. "
             "But in 2026, the SIR voter roll process deleted 77% of reviewed voters in Nadia "
-            "(highest deletion rate in Bengal) — including many Matua families whose "
-            "documentation was incomplete. Gaighata alone lost 26,373 voters (~10% of "
-            "the constituency). Matua leaders are protesting BJP's failure to deliver "
-            "citizenship + the SIR disaster hitting their own community. "
-            "TMC is running on its welfare record (Lakshmir Bhandar, Swasthya Sathi). "
-            "The question: does Matua fury at BJP outweigh Matua distrust of TMC?"
+            "— including many Matua families whose documentation was incomplete. "
+            "Matua leaders are protesting BJP's failure to deliver citizenship plus the SIR "
+            "disaster hitting their own community. "
+            "\n"
+            "2026 MANIFESTO CROSS-PRESSURE: "
+            "TMC (top 3): (1) Lakshmir Bhandar hiked to Rs 1,500 general / Rs 1,700 SC-ST, "
+            "delivered to accounts before polling (not a promise). "
+            "(2) Duare Chikitsa doorstep healthcare. "
+            "(3) Continued scheme delivery (Swasthya Sathi, Krishak Bandhu). "
+            "BJP Sankalp Patra (top 3): (1) Rs 3,000/month women's DBT, conditional on forming govt. "
+            "(2) CAA delivery commitment — renewed Matua citizenship pledge. "
+            "(3) Uniform Civil Code within 6 months — cross-cutting identity pressure. "
+            "Core question: does the Rs 1,500 delivered today + SIR rage at BJP outweigh "
+            "the Rs 3,000 promise + renewed CAA pledge? "
+            "\n"
+            "NATIONALISM STRESS-TEST: Assume Modi is actively pitching Bengal as a national "
+            "pride test; Hindu SC consolidation is near its 2019 peak; Matua Mahasangha leaders "
+            "are publicly realigning toward BJP in the final week; the CAA 'only Modi can deliver "
+            "your citizenship' framing is landing hard. Weigh this against the lived SIR rage."
         ),
-        "swing_notes": "SIR 77.86% deletion rate; Matua CAA-SIR paradox; BJP-TMC swing 8-12 seats",
+        "swing_notes": "SIR 77.86% deletion; Matua CAA-SIR paradox; manifesto cross-pressure; Modi-wave stress-test (max Hindu SC consolidation)",
         "key_seats": ["Gaighata", "Krishnaganj", "Karimpur", "Nakashipara", "Bangaon", "Ashokenagar"],
     },
     {
@@ -219,9 +253,18 @@ CLUSTERS: list[dict] = [
             "(Babul Supriyo defected to TMC, creating political flux). "
             "Kulti was decided by 679 votes. Industrial decline, job losses, and "
             "welfare vs corruption are the key voter concerns. "
-            "Left-Congress alliance has its strongest residual in this industrial belt."
+            "Left-Congress alliance has its strongest residual in this industrial belt. "
+            "\n"
+            "2026 MANIFESTOS NOW LIVE: TMC (March 20) promises Rs 1,500/month unemployed youth "
+            "stipend plus Rs 30,000 crore agriculture budget plus Lakshmir Bhandar hike to "
+            "Rs 1,500/1,700 — delivered before polling. BJP Sankalp Patra (April 10) promises "
+            "1 crore jobs/self-employment over 5 years, Rs 3,000/month unemployed youth, "
+            "7th Pay Commission implementation for govt staff, Rs 3,000/month women DBT. "
+            "Industrial worker / CITU retiree / govt employee now weighs: symmetric youth "
+            "stipends (TMC Rs 1,500 delivered vs BJP Rs 3,000 promised), 7th Pay Commission "
+            "appeal for govt-employee households, Left-Congress as the corruption-fatigue third option."
         ),
-        "swing_notes": "Left CPM residual (Kulti 679 votes); Asansol BJP defector flux; industrial decline",
+        "swing_notes": "Left CPM residual (Kulti 679 votes); Asansol BJP defector flux; industrial decline; 2026 manifesto symmetric youth+jobs promises (TMC delivered vs BJP conditional)",
         "key_seats": ["Kulti", "Asansol", "Durgapur", "Bardhaman", "Raniganj"],
     },
     {
@@ -289,4 +332,5 @@ SWING_CLUSTER_IDS: set[str] = {
     "jungle_mahal",
     "burdwan_industrial",
     "presidency_suburbs",
+    "murshidabad",
 }

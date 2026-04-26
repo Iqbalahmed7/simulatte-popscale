@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import time
 from dataclasses import dataclass
@@ -28,8 +29,19 @@ class RunEventEmitter:
         self.run_dir = self.runs_root / self.run_id
         self.events_path = self.run_dir / "events.jsonl"
         self.run_dir.mkdir(parents=True, exist_ok=True)
+        # asyncio.Lock for serialising concurrent aemit() calls so events.jsonl
+        # timestamps remain monotonic under concurrent cluster execution (BRIEF-014).
+        # Stored as a plain attr so it is created lazily inside the running event
+        # loop, avoiding "no running event loop" errors at construction time.
+        self._lock: asyncio.Lock | None = None
+
+    def _get_lock(self) -> asyncio.Lock:
+        if self._lock is None:
+            self._lock = asyncio.Lock()
+        return self._lock
 
     def emit(self, event_type: str, **payload: Any) -> dict[str, Any]:
+        """Synchronous append — safe to call outside gather."""
         event: dict[str, Any] = {
             "ts": datetime.now(timezone.utc).isoformat(),
             "unix_ts": time.time(),
@@ -40,6 +52,15 @@ class RunEventEmitter:
         with self.events_path.open("a", encoding="utf-8") as f:
             f.write(json.dumps(event, ensure_ascii=True) + "\n")
         return event
+
+    async def aemit(self, event_type: str, **payload: Any) -> dict[str, Any]:
+        """Async-safe emit serialised via asyncio.Lock.
+
+        Use inside coroutines running concurrently (asyncio.gather) to keep
+        events.jsonl timestamps monotonic (BRIEF-014).
+        """
+        async with self._get_lock():
+            return self.emit(event_type, **payload)
 
 
 def read_events(
