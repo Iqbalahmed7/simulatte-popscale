@@ -33,7 +33,7 @@ Then open the briefs in `../briefs/` (BRIEF-004 onwards).
 
 | Phase | Window | Status |
 |---|---|---|
-| Phase 0 — Stop the bleeding | Week 1 | 🟡 5/5 code merged · BRIEF-009 acceptance run pending |
+| Phase 0 — Stop the bleeding | Week 1 | ✅ Closed 2026-04-26 · all 4 acceptance tests PASS |
 | Phase 1 — Cost overhaul | Weeks 2–3 | ⚪ Not started |
 | Phase 2 — Speed + concurrency | Weeks 4–5 | ⚪ Not started |
 | Phase 3 — Prediction quality | Weeks 6–10 | ⚪ Not started |
