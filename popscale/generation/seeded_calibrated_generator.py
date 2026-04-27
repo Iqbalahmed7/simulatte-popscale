@@ -35,9 +35,18 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import os
 import sys
 import uuid
 from dataclasses import dataclass, field
+
+# Per-batch seed-generation timeout. The default 300s is too tight for
+# Sonnet-tier deep personas (Indian profiles consistently take 350-450s
+# for 15 personas). When this fires after personas have already been
+# streamed to disk, the in-memory `seeds` list stays empty and parity
+# fails with "personas list must be non-empty" even though PG succeeded.
+# Override via env var POPSCALE_SEED_TIMEOUT_SECONDS at runtime.
+_SEED_TIMEOUT_SECONDS = float(os.environ.get("POPSCALE_SEED_TIMEOUT_SECONDS", "1200"))
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Optional
@@ -146,7 +155,7 @@ async def run_seeded_generation(
             try:
                 pg_result = await asyncio.wait_for(
                     invoke_persona_generator(brief),
-                    timeout=300.0,
+                    timeout=_SEED_TIMEOUT_SECONDS,
                 )
                 seeds.extend(_deserialise_personas(pg_result.personas))
                 logger.debug(
@@ -155,10 +164,10 @@ async def run_seeded_generation(
                 )
             except asyncio.TimeoutError:
                 logger.error(
-                    "  Seed generation timed out after 300s (s%d b%d) — skipping",
-                    seg_idx, batch_idx,
+                    "  Seed generation timed out after %.0fs (s%d b%d) — skipping",
+                    _SEED_TIMEOUT_SECONDS, seg_idx, batch_idx,
                 )
-                warnings.append(f"Seed s{seg_idx} b{batch_idx}: timed out after 300s")
+                warnings.append(f"Seed s{seg_idx} b{batch_idx}: timed out after {_SEED_TIMEOUT_SECONDS:.0f}s")
             except Exception as exc:
                 logger.error(
                     "  Seed generation failed (s%d b%d): %s: %s",
