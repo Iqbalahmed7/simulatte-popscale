@@ -137,6 +137,7 @@ async def run_seeded_generation(
         """Full PG pipeline for seed personas in one segment."""
         seeds: list[PersonaRecord] = []
         warnings: list[str] = []
+        last_exc: Optional[BaseException] = None
 
         sub_batches = _split_count(ss.seed_count, _PG_MAX_PER_BRIEF)
         for batch_idx, batch_count in enumerate(sub_batches):
@@ -162,18 +163,31 @@ async def run_seeded_generation(
                     "    Seed batch s%d-b%d: %d/%d delivered",
                     seg_idx, batch_idx, len(_deserialise_personas(pg_result.personas)), batch_count,
                 )
-            except asyncio.TimeoutError:
+            except asyncio.TimeoutError as exc:
                 logger.error(
                     "  Seed generation timed out after %.0fs (s%d b%d) — skipping",
                     _SEED_TIMEOUT_SECONDS, seg_idx, batch_idx,
                 )
                 warnings.append(f"Seed s{seg_idx} b{batch_idx}: timed out after {_SEED_TIMEOUT_SECONDS:.0f}s")
+                last_exc = exc
             except Exception as exc:
                 logger.error(
                     "  Seed generation failed (s%d b%d): %s: %s",
                     seg_idx, batch_idx, type(exc).__name__, exc,
                 )
                 warnings.append(f"Seed s{seg_idx} b{batch_idx}: {type(exc).__name__}: {exc}")
+                last_exc = exc
+
+        # If every sub-batch in this segment failed and we have an exception,
+        # surface it. Silently returning [] here causes downstream parity
+        # validation to fail with the misleading "personas list must be
+        # non-empty" / "Cohort generation delivered 0 personas" message,
+        # hiding the real cause.
+        if not seeds and last_exc is not None:
+            raise RuntimeError(
+                f"All seed sub-batches failed for segment {seg_idx} ({ss.label}). "
+                f"Warnings: {warnings}"
+            ) from last_exc
 
         logger.info("  Segment %d/%d seeds done: %d/%d delivered",
                     seg_idx + 1, len(seed_segs), len(seeds), ss.seed_count)
