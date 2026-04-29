@@ -36,6 +36,18 @@ class RunEventEmitter:
         self._lock: asyncio.Lock | None = None
 
     def _get_lock(self) -> asyncio.Lock:
+        if self._lock is not None:
+            # Detect event-loop rotation (Python 3.12): asyncio.Lock binds to
+            # its loop on first await. If the running loop differs from the one
+            # the lock was created in, discard and recreate to avoid
+            # "Future attached to a different loop" errors.
+            bound_loop = getattr(self._lock, "_loop", None)
+            if bound_loop is not None:
+                try:
+                    if asyncio.get_running_loop() is not bound_loop:
+                        self._lock = None
+                except RuntimeError:
+                    self._lock = None
         if self._lock is None:
             self._lock = asyncio.Lock()
         return self._lock
