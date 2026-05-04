@@ -496,51 +496,86 @@ function addDensePerAcSlide(pptx, opts) {
   });
 }
 
-// SLIDE 3 — PREDICTED
-addDensePerAcSlide(pptx, {
-  slideNum: 3,
-  eyebrow: "03 — 294 ASSEMBLY SEATS  |  PREDICTED WINNER  |  WEST BENGAL 2026",
-  headlineLeft: "TMC holds the",
-  headlineRightPlain: "",
-  headlineRightSignal: "map.",
-  seatHeadline: "294  /  TMC 194",
-  mapPath: `${MAPS_DIR}/wb_predicted_per_ac.png`,
-  hemiPath: `${MAPS_DIR}/wb_predicted_hemicycle.png`,
-  legend: [
-    { party: "TMC",  count: 194, color: C_TMC,  highlight: true  },
-    { party: "BJP",  count:  45, color: C_BJP,  highlight: false },
-    { party: "INDI", count:  50, color: C_INDI, highlight: false },
-    { party: "OTH",  count:   5, color: C_OTH,  highlight: false },
-  ],
-  cardLeader: "TMC",
-  cardLeaderMargin: "+47",
-  cardLeaderSeats: 194,
-});
+// SLIDE 3 — SIDE-BY-SIDE COMPARISON (PREDICTED vs ACTUAL)
+{
+  const s = pptx.addSlide();
+  bg(s); addMark(pptx, s); addFooter(s, 3);
+  addEyebrow(s, "01 — PREDICTED VS ACTUAL  |  WEST BENGAL 2026");
 
-// SLIDE 4 — ACTUAL
-addDensePerAcSlide(pptx, {
-  slideNum: 4,
-  eyebrow: "04 — 294 ASSEMBLY SEATS  |  ACTUAL WINNER  |  WEST BENGAL 2026",
-  headlineLeft: "BJP holds the",
-  headlineRightPlain: "",
-  headlineRightSignal: "map.",
-  seatHeadline: "294  /  BJP 203",
-  mapPath: `${MAPS_DIR}/wb_actual_per_ac.png`,
-  hemiPath: `${MAPS_DIR}/wb_actual_hemicycle.png`,
-  legend: [
-    { party: "BJP",  count: 203, color: C_BJP,  highlight: true  },
-    { party: "TMC",  count:  84, color: C_TMC,  highlight: false },
-    { party: "INDI", count:   6, color: C_INDI, highlight: false },
-    { party: "OTH",  count:   1, color: C_OTH,  highlight: false },
-  ],
-  cardLeader: "BJP",
-  cardLeaderMargin: "+55",
-  cardLeaderSeats: 203,
-});
+  // Single shared headline (parallel to cover slide phrasing)
+  s.addText([
+    { text: "We staked ",        options: { color: PARCHMENT } },
+    { text: "TMC.",                options: { color: SIGNAL } },
+    { text: " Bengal voted otherwise.", options: { color: PARCHMENT } },
+  ], {
+    x: 0.4, y: 0.55, w: 9.2, h: 0.55,
+    fontFace: "Arial Narrow", fontSize: 32, bold: true, margin: 0,
+  });
 
-// ─── SLIDES 5–14 — CLUSTER ANALYSIS ───────────────────────────
+  // ── LEFT COLUMN — PREDICTED ──
+  {
+    const cx = 0.4, cw = 4.4;
+    s.addText("PREDICTED", {
+      x: cx, y: 1.20, w: cw, h: 0.22,
+      fontFace: "Courier New", fontSize: 10, color: STATIC, charSpacing: 2, margin: 0,
+    });
+    // Map: ~3.4" wide centered in column
+    const mapW = 3.4, mapH = 3.0;
+    const mapX = cx + (cw - mapW) / 2;
+    s.addImage({
+      path: `${MAPS_DIR}/wb_predicted_per_ac.png`,
+      x: mapX, y: 1.45, w: mapW, h: mapH,
+      sizing: { type: "contain", w: mapW, h: mapH },
+    });
+    // Compact 3-line summary block
+    const sy = 1.45 + mapH + 0.10;
+    s.addText("TMC 194 · BJP 45 · INDI 50 · OTH 5", {
+      x: cx, y: sy, w: cw, h: 0.24,
+      fontFace: "Calibri", fontSize: 11, color: PARCHMENT, align: "center", margin: 0,
+    });
+    s.addText("TMC majority by +47", {
+      x: cx, y: sy + 0.24, w: cw, h: 0.24,
+      fontFace: "Calibri", fontSize: 11, color: PARCHMENT, align: "center", margin: 0,
+    });
+    s.addText("Vote share: TMC 52% · BJP 22%", {
+      x: cx, y: sy + 0.48, w: cw, h: 0.24,
+      fontFace: "Calibri", fontSize: 11, color: PARCHMENT, align: "center", margin: 0,
+    });
+  }
+
+  // ── RIGHT COLUMN — ACTUAL ──
+  {
+    const cx = 5.2, cw = 4.4;
+    s.addText("ACTUAL", {
+      x: cx, y: 1.20, w: cw, h: 0.22,
+      fontFace: "Courier New", fontSize: 10, color: STATIC, charSpacing: 2, margin: 0,
+    });
+    const mapW = 3.4, mapH = 3.0;
+    const mapX = cx + (cw - mapW) / 2;
+    s.addImage({
+      path: `${MAPS_DIR}/wb_actual_per_ac.png`,
+      x: mapX, y: 1.45, w: mapW, h: mapH,
+      sizing: { type: "contain", w: mapW, h: mapH },
+    });
+    const sy = 1.45 + mapH + 0.10;
+    s.addText("BJP 203 · TMC 84 · INDI 6 · OTH 1", {
+      x: cx, y: sy, w: cw, h: 0.24,
+      fontFace: "Calibri", fontSize: 11, color: PARCHMENT, align: "center", margin: 0,
+    });
+    s.addText("BJP majority by +55", {
+      x: cx, y: sy + 0.24, w: cw, h: 0.24,
+      fontFace: "Calibri", fontSize: 11, color: PARCHMENT, align: "center", margin: 0,
+    });
+    s.addText("Vote share: BJP 45.1% · TMC 41.0%", {
+      x: cx, y: sy + 0.48, w: cw, h: 0.24,
+      fontFace: "Calibri", fontSize: 11, color: PARCHMENT, align: "center", margin: 0,
+    });
+  }
+}
+
+// ─── SLIDES 4–13 — CLUSTER ANALYSIS ───────────────────────────
 CLUSTER_ORDER.forEach((cid, idx) => {
-  const slideNum = 5 + idx;
+  const slideNum = 4 + idx;
   const ord = String(idx + 1).padStart(2, "0");
   const c = CLUSTERS[cid];
   const s = pptx.addSlide();
@@ -594,10 +629,10 @@ CLUSTER_ORDER.forEach((cid, idx) => {
   });
 });
 
-// ─── SLIDE 15 — THE MECHANISM ─────────────────────────────────
+// ─── SLIDE 14 — THE MECHANISM ─────────────────────────────────
 {
   const s = pptx.addSlide();
-  bg(s); addMark(pptx, s); addFooter(s, 15);
+  bg(s); addMark(pptx, s); addFooter(s, 14);
   addEyebrow(s, "05 — STRUCTURAL FAILURE");
   s.addText("Three things to fix in the model.", {
     x: 0.5, y: 0.62, w: 8.5, h: 0.6,
