@@ -37,7 +37,27 @@ Source: ECI live + multiple media outlets
 **Suvendu Adhikari (BJP) framing:** "Hindu consolidation"
 **Turnout:** 92.47% — abnormally high, historically associated with anti-incumbency waves
 
-### Snapshot 2 — [pending]
+### Snapshot 2 — 13:35 IST (~5.5 hrs into counting)
+
+| Party | ECI count | Δ vs staked (central) | Δ vs staked (range edge) |
+|---|---|---|---|
+| **BJP** | 176–181 (leading) | **+131 to +136** | +121 to +126 above ceiling (55) |
+| **TMC** | 91–94 | **−100 to −103** | −91 to −94 below floor (185) |
+| Left-Cong | not yet declared | — | — |
+| Others | not yet declared | — | — |
+
+**Vote share (declared so far):** BJP 45.13% · TMC 40.97% · L-C and others not yet stated
+
+**Headline:** BJP has crossed the 148 majority mark. Leading well above 160 seats; sources reporting "nears 200-seat mark" and "Didi Gayi" framing. Suvendu Adhikari (BJP) calling it "Hindu consolidation."
+
+**Status of our prediction:**
+- **Directional call: WRONG** (we staked TMC majority; BJP holding majority)
+- **Magnitude of miss on BJP:** ~131 seats above our central estimate, ~126 above our stated ceiling
+- **Magnitude of miss on TMC:** ~102 seats below our central estimate, ~93 below our stated floor
+- **Vote-share check:** BJP 45.13% actual vs our model around 22–25% in most clusters → ~20pp miss on BJP voteshare
+- This is now confirmed as a major prediction failure pending final tally.
+
+### Snapshot 3 — [pending]
 
 ---
 
