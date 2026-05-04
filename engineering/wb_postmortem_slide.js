@@ -1,6 +1,8 @@
 "use strict";
 // WB 2026 post-mortem — single LinkedIn carousel slide (10" × 10")
 // Strict Simulatte brand. Zero green except engine mark.
+// v0.2: binary winner-fill (parchment = TMC, hollow = anyone else),
+//       5×2 grid (10 clusters, no empty cells), sharp predicted/actual asymmetry.
 const pptxgen = require("pptxgenjs");
 
 const OUT = "/Users/admin/Documents/Simulatte Projects/PopScale/engineering/wb_2026_postmortem_slide.pptx";
@@ -12,8 +14,9 @@ const STATIC    = "9A9997";
 const BODY_COPY = "C9C7C0";
 const DETAIL    = "A8A6A0";
 const BORDER    = "1A1A1A";
+const NEAR_BLACK = "1A1A1A";
 
-const ACTUAL_BJP = "{ACTUAL_BJP}"; // placeholder for swap-in
+const ACTUAL_BJP = "{ACTUAL_BJP}"; // placeholder for swap-in (single sed replace)
 
 // Engine mark — bottom-right, on a 10x10 canvas
 function addMark(pptx, slide, x, y, size = 0.42) {
@@ -34,7 +37,7 @@ pptx.title = "WB 2026 Post-Mortem";
 const slide = pptx.addSlide();
 slide.background = { color: VOID };
 
-// ── TOP: eyebrow + divider + headline (y 0.4–1.4 then headline below)
+// ── TOP: eyebrow + divider + headline
 slide.addText("POST-MORTEM · WEST BENGAL 2026", {
   x: 0.5, y: 0.40, w: 9, h: 0.25,
   fontFace: "Courier New", fontSize: 9, color: STATIC,
@@ -47,7 +50,7 @@ slide.addShape(pptx.ShapeType.line, {
   line: { color: BORDER, width: 0.75 },
 });
 
-// Headline split across 2 lines, ALL parchment (data slide rule — no split lettering)
+// Headline split across 2 lines, ALL parchment
 slide.addText("We staked TMC.", {
   x: 0.5, y: 0.85, w: 9, h: 0.7,
   fontFace: "Arial Narrow", fontSize: 36, bold: true, color: PARCHMENT, margin: 0,
@@ -58,8 +61,7 @@ slide.addText("Bengal voted otherwise.", {
 });
 
 // ── MIDDLE: two maps (cluster grids) side by side
-// LEFT — PREDICTED
-const LX = 0.5, RX = 5.1, MW = 4.4, MTOP = 2.4, MH = 4.5;
+const LX = 0.5, RX = 5.1, MW = 4.4, MTOP = 2.4;
 
 // Headers
 slide.addText("PREDICTED", {
@@ -71,31 +73,37 @@ slide.addText("ACTUAL", {
   fontFace: "Courier New", fontSize: 9, color: STATIC, charSpacing: 2, margin: 0,
 });
 
-// 10 cluster grid — rough geographic positions (within each map area)
-// Position grid (col, row, w, h) inside a 4-col x 4-row layout
-// Cluster names + rough positions: (col 0..3, row 0..3)
+// 10 clusters arranged 5 cols × 2 rows.
+// Geographic ordering: row 0 = north Bengal, row 1 = south Bengal.
+// predTMC: did our model predict TMC wins this cluster?
+// actualTMC: did TMC actually win this cluster (current trend; placeholder — flip when final tally arrives)?
+//
+// Predicted (model output): TMC predicted in 9 of 10 clusters; we modelled BJP/GJM in Darjeeling.
+// Actual (current trend, working assumption — UPDATE WHEN FINAL TALLY ARRIVES):
+//   BJP appears to have won 9 of 10 clusters. Murshidabad is the lone TMC hold.
 const clusters = [
-  { name: "Darjeeling",         col: 0, row: 0, predTMC: 25, actualBJP: 55 },
-  { name: "North Bengal",        col: 1, row: 0, predTMC: 50, actualBJP: 58 },
-  { name: "Cooch Behar",         col: 2, row: 0, predTMC: 50, actualBJP: 60 },
-  { name: "Murshidabad",         col: 0, row: 1, predTMC: 75, actualBJP: 38 },
-  { name: "Matua / Nadia-N24",   col: 1, row: 1, predTMC: 60, actualBJP: 55 },
-  { name: "Burdwan Industrial",  col: 2, row: 1, predTMC: 58, actualBJP: 50 },
-  { name: "Howrah-Hooghly",      col: 3, row: 1, predTMC: 60, actualBJP: 48 },
-  { name: "Jungle Mahal",        col: 0, row: 2, predTMC: 55, actualBJP: 56 },
-  { name: "Bankura-Purulia",     col: 1, row: 2, predTMC: 52, actualBJP: 55 },
-  { name: "Presidency Suburbs",  col: 2, row: 2, predTMC: 62, actualBJP: 45 },
-  { name: "Kolkata Urban",       col: 3, row: 2, predTMC: 58, actualBJP: 42 },
+  // Row 0 — North Bengal across the top
+  { name: "Darjeeling",         col: 0, row: 0, predTMC: false, actualTMC: false },
+  { name: "North Bengal",       col: 1, row: 0, predTMC: true,  actualTMC: false },
+  { name: "Malda",              col: 2, row: 0, predTMC: true,  actualTMC: false },
+  { name: "Murshidabad",        col: 3, row: 0, predTMC: true,  actualTMC: true  },
+  { name: "Matua / Nadia-N24",  col: 4, row: 0, predTMC: true,  actualTMC: false },
+  // Row 1 — South Bengal across the bottom
+  { name: "Burdwan Industrial", col: 0, row: 1, predTMC: true,  actualTMC: false },
+  { name: "Jungle Mahal",       col: 1, row: 1, predTMC: true,  actualTMC: false },
+  { name: "South Rural",        col: 2, row: 1, predTMC: true,  actualTMC: false },
+  { name: "Presidency Suburbs", col: 3, row: 1, predTMC: true,  actualTMC: false },
+  { name: "Kolkata Urban",      col: 4, row: 1, predTMC: true,  actualTMC: false },
 ];
 
-const COLS = 4, ROWS = 3;
+const COLS = 5, ROWS = 2;
 const mapInnerTop = MTOP + 0.30;
-const mapInnerH = 3.6;
+const mapInnerH = 3.0;
 const cellW = MW / COLS;
 const cellH = mapInnerH / ROWS;
-const gap = 0.06;
+const gap = 0.05;
 
-// border for each map area
+// Border for each map area
 slide.addShape(pptx.ShapeType.rect, {
   x: LX, y: mapInnerTop - 0.04, w: MW, h: mapInnerH + 0.08,
   fill: { type: "none" }, line: { color: BORDER, width: 0.75 },
@@ -105,11 +113,35 @@ slide.addShape(pptx.ShapeType.rect, {
   fill: { type: "none" }, line: { color: BORDER, width: 0.75 },
 });
 
-// Helper: parchment intensity by share — render fill as parchment with transparency
-function intensity(share) {
-  // share 0..100 → transparency 90..15 (lower = more visible)
-  const clamped = Math.max(0, Math.min(100, share));
-  return Math.round(90 - (clamped / 100) * 75);
+// Render each cell on both sides.
+// Color rule: parchment fill iff TMC wins (predicted side: predTMC; actual side: actualTMC).
+// Hollow = anyone else (BJP, L-C, GJM/BJP-allied, etc).
+function drawCell(x, y, w, h, isTMC, label) {
+  if (isTMC) {
+    // Parchment-filled: TMC win
+    slide.addShape(pptx.ShapeType.rect, {
+      x, y, w, h,
+      fill: { color: PARCHMENT },
+      line: { color: PARCHMENT, width: 0.5 },
+    });
+    slide.addText(label, {
+      x: x + 0.05, y: y + 0.05, w: w - 0.10, h: h - 0.10,
+      fontFace: "Courier New", fontSize: 9, bold: true, color: NEAR_BLACK,
+      valign: "top", margin: 0,
+    });
+  } else {
+    // Hollow: dark grey with thin parchment outline
+    slide.addShape(pptx.ShapeType.rect, {
+      x, y, w, h,
+      fill: { color: VOID },
+      line: { color: PARCHMENT, width: 0.5 },
+    });
+    slide.addText(label, {
+      x: x + 0.05, y: y + 0.05, w: w - 0.10, h: h - 0.10,
+      fontFace: "Courier New", fontSize: 9, color: STATIC,
+      valign: "top", margin: 0,
+    });
+  }
 }
 
 clusters.forEach((c) => {
@@ -119,41 +151,24 @@ clusters.forEach((c) => {
   const w = cellW - gap;
   const h = cellH - gap;
 
-  // PREDICTED side — TMC share
-  slide.addShape(pptx.ShapeType.rect, {
-    x: cx_l, y: cy, w, h,
-    fill: { color: PARCHMENT, transparency: intensity(c.predTMC) },
-    line: { color: BORDER, width: 0.5 },
-  });
-  slide.addText(c.name, {
-    x: cx_l + 0.03, y: cy + 0.03, w: w - 0.06, h: h - 0.06,
-    fontFace: "Courier New", fontSize: 7, color: STATIC, valign: "top", margin: 0,
-  });
-
-  // ACTUAL side — BJP share
-  slide.addShape(pptx.ShapeType.rect, {
-    x: cx_r, y: cy, w, h,
-    fill: { color: PARCHMENT, transparency: intensity(c.actualBJP) },
-    line: { color: BORDER, width: 0.5 },
-  });
-  slide.addText(c.name, {
-    x: cx_r + 0.03, y: cy + 0.03, w: w - 0.06, h: h - 0.06,
-    fontFace: "Courier New", fontSize: 7, color: STATIC, valign: "top", margin: 0,
-  });
+  // PREDICTED side
+  drawCell(cx_l, cy, w, h, c.predTMC, c.name);
+  // ACTUAL side
+  drawCell(cx_r, cy, w, h, c.actualTMC, c.name);
 });
 
 // Captions below each map
-const capY = mapInnerTop + mapInnerH + 0.15;
-slide.addText("TMC majority. 194 ± 10 seats. ~52% voteshare.", {
-  x: LX, y: capY, w: MW, h: 0.4,
+const capY = mapInnerTop + mapInnerH + 0.20;
+slide.addText("Predicted: TMC majority · 194 ± 10 seats · ~52% vs ~22% voteshare modelled", {
+  x: LX, y: capY, w: MW, h: 0.5,
   fontFace: "Calibri", fontSize: 11, color: DETAIL, margin: 0,
 });
-slide.addText(`BJP majority. ${ACTUAL_BJP} seats. 45.1% voteshare.`, {
-  x: RX, y: capY, w: MW, h: 0.4,
+slide.addText(`Actual: BJP majority · ${ACTUAL_BJP} seats · 45.1% voteshare`, {
+  x: RX, y: capY, w: MW, h: 0.5,
   fontFace: "Calibri", fontSize: 11, color: DETAIL, margin: 0,
 });
 
-// ── BOTTOM: factor ledger (y 7.0 to 9.5)
+// ── BOTTOM: factor ledger
 const LY = 7.0;
 slide.addText("WHAT WE WEIGHTED", {
   x: 0.5, y: LY, w: 4.6, h: 0.22,
