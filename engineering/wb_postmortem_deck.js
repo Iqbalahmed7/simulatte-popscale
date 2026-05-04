@@ -109,7 +109,7 @@ const CLUSTER_LABEL_POS = {
   malda:              { x: 0.31, y: 0.34, label: "MALDA" },
   murshidabad:        { x: 0.41, y: 0.44, label: "MURSHIDABAD" },
   burdwan_industrial: { x: 0.20, y: 0.50, label: "BURDWAN" },
-  matua_belt:         { x: 0.62, y: 0.51, label: "MATUA" },
+  matua_belt:         { x: 0.62, y: 0.51, label: "MATUA / N24" },
   jungle_mahal:       { x: 0.18, y: 0.67, label: "JUNGLE MAHAL" },
   presidency_suburbs: { x: 0.43, y: 0.57, label: "PRESIDENCY" },
   kolkata_urban:      { x: 0.59, y: 0.65, label: "KOL" },
@@ -136,31 +136,36 @@ function drawWBMap(pptx, slide, opts) {
       let cellFill, cellLine;
       if (isHighlight) {
         cellFill = { color: highlightColor };
-        cellLine = { color: highlightColor, width: 0.5 };
+        cellLine = { type: "none" };
       } else if (dimOnly) {
-        cellFill = { color: VOID };
-        cellLine = { color: DIM_OUTLINE, width: 0.5 };
+        // dim parchment fill — same Bengal silhouette, just dim
+        cellFill = { color: PARCHMENT, transparency: 88 };
+        cellLine = { type: "none" };
       } else if (isFilled) {
         cellFill = { color: fillColor };
-        cellLine = { color: fillColor, width: 0.5 };
+        cellLine = { type: "none" };
       } else {
-        cellFill = { color: VOID };
-        cellLine = { color: PARCHMENT, width: 0.5 };
+        // hollow cells render as dim parchment so silhouette stays continuous
+        cellFill = { color: PARCHMENT, transparency: 88 };
+        cellLine = { type: "none" };
       }
       slide.addShape(pptx.ShapeType.rect, { x, y, w, h, fill: cellFill, line: cellLine });
     });
   });
 
   if (showLabels) {
+    // Smaller cells need a smaller label to fit inside cell bounds
+    const SMALL_CELL_CLUSTERS = new Set(["darjeeling_hills", "kolkata_urban", "malda"]);
     Object.entries(CLUSTER_LABEL_POS).forEach(([cid, lp]) => {
       const isHighlight = (cid === highlightCluster);
       // For highlighted cluster on cluster-detail slide, draw label dark on green
       const color = isHighlight ? NEAR_BLACK : labelColor;
+      const fs = SMALL_CELL_CLUSTERS.has(cid) ? Math.min(labelSize, 7) : labelSize;
       slide.addText(lp.label, {
         x: ox + lp.x * scale - 0.30,
         y: oy + lp.y * scale - 0.06,
         w: 0.80, h: 0.18,
-        fontFace: "Courier New", fontSize: labelSize, bold: isHighlight,
+        fontFace: "Courier New", fontSize: fs, bold: isHighlight,
         color, align: "center", margin: 0,
       });
     });
