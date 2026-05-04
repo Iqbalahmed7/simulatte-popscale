@@ -16,7 +16,7 @@ const DETAIL    = "A8A6A0";
 const BORDER    = "1A1A1A";
 const NEAR_BLACK = "1A1A1A";
 
-const ACTUAL_BJP = "{ACTUAL_BJP}"; // placeholder for swap-in (single sed replace)
+const ACTUAL_BJP = "203"; // final lock — post-election
 
 // Engine mark — bottom-right, on a 10x10 canvas
 function addMark(pptx, slide, x, y, size = 0.42) {

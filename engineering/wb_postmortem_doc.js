@@ -81,10 +81,10 @@ function cell(text, opts = {}) {
 function callVsResultTable() {
   const header = ["Party", "Pred. seats", "Actual seats", "Δ seats", "Pred. VS%", "Actual VS%", "Δ VS%"];
   const rows = [
-    ["TMC",   "194 ± 10", "{ACTUAL_TMC}",  "{ACTUAL_TMC_DELTA}",  "~52%", "40.97%", "−11pp"],
-    ["BJP",   "45 ± 10",  "{ACTUAL_BJP}",  "{ACTUAL_BJP_DELTA}",  "~24%", "45.13%", "+21pp"],
-    ["L-C",   "50 ± 10",  "{ACTUAL_LC}",   "{ACTUAL_LC_DELTA}",   "~17%", "{ACTUAL_LC_VS}", "—"],
-    ["Others","5 ± 3",    "{ACTUAL_OTH}",  "{ACTUAL_OTH_DELTA}",  "~7%",  "{ACTUAL_OTH_VS}", "—"],
+    ["TMC",   "194 ± 10", "84",  "−110",  "~52%", "40.97%", "−11pp"],
+    ["BJP",   "45 ± 10",  "203", "+158",  "~22%", "45.13%", "+23pp"],
+    ["L-C",   "50 ± 10",  "6",   "−44",   "~17%", "~13%", "—"],
+    ["Others","5 ± 3",    "1",   "−4",    "~7%",  "~1%", "—"],
   ];
   const W = 1280;
   const headerRow = new TableRow({
@@ -116,16 +116,16 @@ const children = [
     font: HEAD_FONT, size: 56, bold: true, color: HEADING_HEX,
   })], { spacing: { after: 120 } }),
   p([new TextRun({
-    text: "4 May 2026 · v0.1 · figures pending final tally swap-in",
+    text: "4 May 2026 · v1.0 · final tally locked",
     font: MONO_FONT, size: 18, color: STATIC_HEX,
   })], { spacing: { after: 360 } }),
 
   // Lead
-  body("On 22 April 2026 The Construct simulated a TMC majority of 194 ± 10 seats at ~52% voteshare. Counting on 4 May produced a BJP majority above the 148-seat threshold at 45.13% voteshare against TMC at 40.97%. This document records what we modelled, what actually decided the result, and the specific prior shifts that will be applied to the next study."),
+  body("On 22 April 2026 The Construct simulated a TMC majority of 194 ± 10 seats at ~52% voteshare. Counting on 4 May produced a BJP majority of 203 seats at 45.13% voteshare against TMC at 84 seats / 40.97%. Of 294 constituencies, 293 have been called (Falta deferred to a 21 May re-poll); Left+Congress took 6 and Others 1. This document records what we modelled, what actually decided the result, and the specific prior shifts that will be applied to the next study."),
 
   // 1. The Call vs the Result
   h1("1. The Call vs the Result"),
-  body("Per-party predicted vs actual. Final actuals are pending — bracketed placeholders are swapped in once counting closes (~7 PM IST, 4 May 2026)."),
+  body("Per-party predicted vs actual. Final tally as of 4 May 2026, 293 of 294 seats counted (Falta deferred to 21 May re-poll)."),
   callVsResultTable(),
   p([t("Source: ECI live counts at 13:35 IST 4 May 2026; Simulatte WB 2026 study report 22 April 2026.", { color: STATIC_HEX, size: 18 })], { spacing: { before: 120, after: 200 } }),
 
@@ -177,7 +177,7 @@ const children = [
 
   // Footer
   p([new TextRun({
-    text: "Simulatte / The Construct · 4 May 2026 · v0.1",
+    text: "Simulatte / The Construct · 4 May 2026 · v1.0",
     font: MONO_FONT, size: 16, color: STATIC_HEX,
   })], { spacing: { before: 480 }, alignment: AlignmentType.LEFT }),
 ];
