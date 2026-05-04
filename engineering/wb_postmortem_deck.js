@@ -365,51 +365,182 @@ pptx.title = "WB 2026 Post-Mortem v2";
   });
 }
 
-// ─── SLIDE 3 — HERO MAP (real Bengal geography, two side-by-side) ──
-{
+// ─── SLIDES 3 & 4 — DENSE PER-AC MAP (PREDICTED, ACTUAL) ──
+// Format mirrors the pre-election forecast slide: per-AC WB map (centre),
+// parliament hemicycle + party legend (left), three metric cards (right).
+// Party-convention colors used here only.
+const C_TMC  = "3FA34D";  // green — established TMC convention
+const C_BJP  = "F4A02C";  // orange
+const C_INDI = "C44545";  // red
+const C_OTH  = "8A8A8A";  // grey
+
+function addDensePerAcSlide(pptx, opts) {
+  const {
+    slideNum, eyebrow, headlineLeft, headlineRightPlain, headlineRightSignal,
+    seatHeadline, mapPath, hemiPath, legend,
+    cardLeader, cardLeaderMargin, cardLeaderSeats,
+  } = opts;
   const s = pptx.addSlide();
-  bg(s); addMark(pptx, s); addFooter(s, 3);
-  addEyebrow(s, "01 — THE PREDICTED MAP VS THE ACTUAL");
+  bg(s); addMark(pptx, s); addFooter(s, slideNum);
+  addEyebrow(s, eyebrow);
 
-  s.addText("Bengal predicted. Bengal voted.", {
-    x: 0.5, y: 0.62, w: 8.5, h: 0.6,
-    fontFace: "Arial Narrow", fontSize: 32, bold: true, color: PARCHMENT, margin: 0,
+  // Split-lettering headline at top
+  s.addText([
+    { text: headlineLeft, options: { color: PARCHMENT } },
+    { text: " ", options: {} },
+    { text: headlineRightPlain, options: { color: PARCHMENT } },
+    { text: headlineRightSignal, options: { color: SIGNAL } },
+  ], {
+    x: 0.4, y: 0.55, w: 9.2, h: 0.55,
+    fontFace: "Arial Narrow", fontSize: 36, bold: true, margin: 0,
   });
 
-  // Left map — PREDICTED (TMC majority across 9 clusters)
-  s.addText("PREDICTED", {
-    x: 0.4, y: 1.30, w: 4.4, h: 0.22,
-    fontFace: "Courier New", fontSize: 10, color: STATIC, charSpacing: 2, margin: 0,
+  // ── LEFT BLOCK — seat distribution + hemicycle + legend ──
+  const lx = 0.4, lw = 2.8;
+  s.addText("SEAT DISTRIBUTION", {
+    x: lx, y: 1.20, w: lw, h: 0.20,
+    fontFace: "Courier New", fontSize: 9, color: STATIC, charSpacing: 2, margin: 0,
+  });
+  s.addText(seatHeadline, {
+    x: lx, y: 1.42, w: lw, h: 0.34,
+    fontFace: "Arial Narrow", fontSize: 22, color: PARCHMENT, margin: 0,
+  });
+  // hemicycle image
+  s.addImage({
+    path: hemiPath,
+    x: lx, y: 1.80, w: lw, h: 1.55,
+    sizing: { type: "contain", w: lw, h: 1.55 },
+  });
+  s.addText("294 SEATS  ·  148 = MAJORITY", {
+    x: lx, y: 3.40, w: lw, h: 0.20,
+    fontFace: "Courier New", fontSize: 8, color: STATIC, charSpacing: 1.5, margin: 0,
+  });
+  // 4-row legend
+  const legY0 = 3.70, legRowH = 0.32;
+  legend.forEach((row, i) => {
+    const y = legY0 + i * legRowH;
+    s.addShape(pptx.ShapeType.rect, {
+      x: lx, y: y + 0.05, w: 0.16, h: 0.16,
+      fill: { color: row.color }, line: { color: row.color, width: 0 },
+    });
+    s.addText(row.party, {
+      x: lx + 0.24, y, w: 1.4, h: 0.26,
+      fontFace: "Arial Narrow", fontSize: 13, bold: true, color: PARCHMENT, margin: 0,
+    });
+    s.addText(String(row.count), {
+      x: lx + 1.6, y, w: 1.2, h: 0.26,
+      fontFace: "Arial Narrow", fontSize: 13, bold: true,
+      color: row.highlight ? SIGNAL : PARCHMENT, align: "right", margin: 0,
+    });
+  });
+
+  // ── CENTRE BLOCK — per-AC map ──
+  s.addText("WEST BENGAL · 294 ASSEMBLY CONSTITUENCIES", {
+    x: 3.4, y: 1.20, w: 4.2, h: 0.20,
+    fontFace: "Courier New", fontSize: 9, color: STATIC, charSpacing: 2, margin: 0, align: "center",
   });
   s.addImage({
-    path: `${MAPS_DIR}/wb_predicted_map.png`,
-    x: 0.95, y: 1.55, w: 3.30, h: 3.40,
-    sizing: { type: "contain", w: 3.30, h: 3.40 },
-  });
-  s.addText("Predicted: TMC majority across 9 clusters · 194 ± 10 seats", {
-    x: 0.4, y: 5.05, w: 4.4, h: 0.22,
-    fontFace: "Calibri", fontSize: 10, color: DETAIL, margin: 0,
+    path: mapPath,
+    x: 3.4, y: 1.40, w: 4.2, h: 3.95,
+    sizing: { type: "contain", w: 4.2, h: 3.95 },
   });
 
-  // Right map — ACTUAL (only Murshidabad TMC)
-  s.addText("ACTUAL", {
-    x: 5.2, y: 1.30, w: 4.4, h: 0.22,
-    fontFace: "Courier New", fontSize: 10, color: STATIC, charSpacing: 2, margin: 0,
+  // ── RIGHT BLOCK — three metric cards ──
+  const rx = 7.80, rw = 1.90;
+  // Card 1: MAJORITY LINE / 148
+  s.addShape(pptx.ShapeType.rect, {
+    x: rx, y: 1.20, w: rw, h: 1.18,
+    fill: { color: VOID }, line: { color: BORDER, width: 0.75 },
   });
-  s.addImage({
-    path: `${MAPS_DIR}/wb_actual_map.png`,
-    x: 5.75, y: 1.55, w: 3.30, h: 3.40,
-    sizing: { type: "contain", w: 3.30, h: 3.40 },
+  s.addText("MAJORITY LINE", {
+    x: rx + 0.14, y: 1.30, w: rw - 0.20, h: 0.20,
+    fontFace: "Courier New", fontSize: 8, color: STATIC, charSpacing: 1.5, margin: 0,
   });
-  s.addText("Actual: TMC held 1 cluster · 84 seats", {
-    x: 5.2, y: 5.05, w: 4.4, h: 0.22,
-    fontFace: "Calibri", fontSize: 10, color: DETAIL, margin: 0,
+  s.addText("148", {
+    x: rx + 0.14, y: 1.55, w: rw - 0.20, h: 0.70,
+    fontFace: "Arial Narrow", fontSize: 36, bold: true, color: PARCHMENT, margin: 0,
+  });
+
+  // Card 2: <LEADER> MARGIN with vertical signal accent
+  const c2y = 2.55;
+  s.addShape(pptx.ShapeType.rect, {
+    x: rx, y: c2y, w: rw, h: 1.18,
+    fill: { color: VOID }, line: { color: BORDER, width: 0.75 },
+  });
+  s.addShape(pptx.ShapeType.rect, {
+    x: rx, y: c2y, w: 0.06, h: 1.18,
+    fill: { color: SIGNAL }, line: { color: SIGNAL, width: 0 },
+  });
+  s.addText(`${cardLeader} MARGIN`, {
+    x: rx + 0.18, y: c2y + 0.10, w: rw - 0.24, h: 0.20,
+    fontFace: "Courier New", fontSize: 8, color: STATIC, charSpacing: 1.5, margin: 0,
+  });
+  s.addText(cardLeaderMargin, {
+    x: rx + 0.18, y: c2y + 0.35, w: rw - 0.24, h: 0.70,
+    fontFace: "Arial Narrow", fontSize: 36, bold: true, color: SIGNAL, margin: 0,
+  });
+
+  // Card 3: <LEADER> SEATS / 294 — value
+  const c3y = 3.90;
+  s.addShape(pptx.ShapeType.rect, {
+    x: rx, y: c3y, w: rw, h: 1.18,
+    fill: { color: VOID }, line: { color: BORDER, width: 0.75 },
+  });
+  s.addText(`${cardLeader} SEATS / 294`, {
+    x: rx + 0.14, y: c3y + 0.10, w: rw - 0.20, h: 0.20,
+    fontFace: "Courier New", fontSize: 8, color: STATIC, charSpacing: 1.5, margin: 0,
+  });
+  s.addText(String(cardLeaderSeats), {
+    x: rx + 0.14, y: c3y + 0.35, w: rw - 0.20, h: 0.70,
+    fontFace: "Arial Narrow", fontSize: 36, bold: true, color: PARCHMENT, margin: 0,
   });
 }
 
-// ─── SLIDES 4–13 — CLUSTER ANALYSIS ───────────────────────────
+// SLIDE 3 — PREDICTED
+addDensePerAcSlide(pptx, {
+  slideNum: 3,
+  eyebrow: "03 — 294 ASSEMBLY SEATS  |  PREDICTED WINNER  |  WEST BENGAL 2026",
+  headlineLeft: "TMC holds the",
+  headlineRightPlain: "",
+  headlineRightSignal: "map.",
+  seatHeadline: "294  /  TMC 194",
+  mapPath: `${MAPS_DIR}/wb_predicted_per_ac.png`,
+  hemiPath: `${MAPS_DIR}/wb_predicted_hemicycle.png`,
+  legend: [
+    { party: "TMC",  count: 194, color: C_TMC,  highlight: true  },
+    { party: "BJP",  count:  45, color: C_BJP,  highlight: false },
+    { party: "INDI", count:  50, color: C_INDI, highlight: false },
+    { party: "OTH",  count:   5, color: C_OTH,  highlight: false },
+  ],
+  cardLeader: "TMC",
+  cardLeaderMargin: "+47",
+  cardLeaderSeats: 194,
+});
+
+// SLIDE 4 — ACTUAL
+addDensePerAcSlide(pptx, {
+  slideNum: 4,
+  eyebrow: "04 — 294 ASSEMBLY SEATS  |  ACTUAL WINNER  |  WEST BENGAL 2026",
+  headlineLeft: "BJP holds the",
+  headlineRightPlain: "",
+  headlineRightSignal: "map.",
+  seatHeadline: "294  /  BJP 203",
+  mapPath: `${MAPS_DIR}/wb_actual_per_ac.png`,
+  hemiPath: `${MAPS_DIR}/wb_actual_hemicycle.png`,
+  legend: [
+    { party: "BJP",  count: 203, color: C_BJP,  highlight: true  },
+    { party: "TMC",  count:  84, color: C_TMC,  highlight: false },
+    { party: "INDI", count:   6, color: C_INDI, highlight: false },
+    { party: "OTH",  count:   1, color: C_OTH,  highlight: false },
+  ],
+  cardLeader: "BJP",
+  cardLeaderMargin: "+55",
+  cardLeaderSeats: 203,
+});
+
+// ─── SLIDES 5–14 — CLUSTER ANALYSIS ───────────────────────────
 CLUSTER_ORDER.forEach((cid, idx) => {
-  const slideNum = 4 + idx;
+  const slideNum = 5 + idx;
   const ord = String(idx + 1).padStart(2, "0");
   const c = CLUSTERS[cid];
   const s = pptx.addSlide();
@@ -463,11 +594,11 @@ CLUSTER_ORDER.forEach((cid, idx) => {
   });
 });
 
-// ─── SLIDE 14 — THE MECHANISM ─────────────────────────────────
+// ─── SLIDE 15 — THE MECHANISM ─────────────────────────────────
 {
   const s = pptx.addSlide();
-  bg(s); addMark(pptx, s); addFooter(s, 14);
-  addEyebrow(s, "03 — STRUCTURAL FAILURE");
+  bg(s); addMark(pptx, s); addFooter(s, 15);
+  addEyebrow(s, "05 — STRUCTURAL FAILURE");
   s.addText("Three things to fix in the model.", {
     x: 0.5, y: 0.62, w: 8.5, h: 0.6,
     fontFace: "Arial Narrow", fontSize: 32, bold: true, color: PARCHMENT, margin: 0,
@@ -487,7 +618,7 @@ CLUSTER_ORDER.forEach((cid, idx) => {
   });
 }
 
-// ─── SLIDE 15 — CLOSING ───────────────────────────────────────
+// ─── SLIDE 16 — CLOSING ───────────────────────────────────────
 {
   const s = pptx.addSlide();
   bg(s);
