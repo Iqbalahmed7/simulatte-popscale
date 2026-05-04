@@ -280,8 +280,8 @@ addAnalysisSlide(pptx, {
   items: [
     {
       num: "01",
-      head: "SIR voter-roll deletions — structural disenfranchisement.",
-      body: "Systematic deletion of names in Muslim-majority blocks in North Bengal and Murshidabad. Not visible from published rolls at modelling time; no signal in our population layer.",
+      head: "Voter-roll revisions under SIR were not captured in our population data.",
+      body: "Name deletions across multiple blocks in North Bengal and Murshidabad created a turnout asymmetry our population layer did not account for. No per-block attrition signal was available at modelling time.",
     },
     {
       num: "02",
@@ -290,8 +290,8 @@ addAnalysisSlide(pptx, {
     },
     {
       num: "03",
-      head: "2026 became a Hindu identity election, not a welfare election.",
-      body: "The simulation ran on welfare delivery signals (beneficiary schemes, Duare Sarkar reach). The operative frame on election day was religio-cultural consolidation — orthogonal to our model.",
+      head: "The mobilisation frame shifted from welfare delivery to political consolidation.",
+      body: "The simulation's signal layer was built on scheme reach and beneficiary satisfaction. The dominant operative dynamic on election day was cross-community political consolidation — a frame welfare metrics cannot proxy.",
     },
     {
       num: "04",
