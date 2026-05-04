@@ -6,6 +6,7 @@
 const pptxgen = require("pptxgenjs");
 
 const OUT = "/Users/admin/Documents/Simulatte Projects/PopScale/engineering/wb_2026_postmortem_deck.pptx";
+const MAPS_DIR = "/Users/admin/Documents/Simulatte Projects/PopScale/engineering/maps";
 
 // Palette
 const VOID       = "050505";
@@ -380,11 +381,10 @@ pptx.title = "WB 2026 Post-Mortem v2";
     x: 0.4, y: 1.30, w: 4.4, h: 0.22,
     fontFace: "Courier New", fontSize: 10, color: STATIC, charSpacing: 2, margin: 0,
   });
-  const predFill = new Set(Object.keys(CLUSTERS).filter(k => CLUSTERS[k].predTMCWin));
-  drawWBMap(pptx, s, {
-    ox: 0.4, oy: 1.55, scale: 3.4,
-    fillSet: predFill,
-    showLabels: true, labelColor: STATIC, labelSize: 7,
+  s.addImage({
+    path: `${MAPS_DIR}/wb_predicted_map.png`,
+    x: 0.95, y: 1.55, w: 3.30, h: 3.40,
+    sizing: { type: "contain", w: 3.30, h: 3.40 },
   });
   s.addText("Predicted: TMC majority across 9 clusters · 194 ± 10 seats", {
     x: 0.4, y: 5.05, w: 4.4, h: 0.22,
@@ -396,11 +396,10 @@ pptx.title = "WB 2026 Post-Mortem v2";
     x: 5.2, y: 1.30, w: 4.4, h: 0.22,
     fontFace: "Courier New", fontSize: 10, color: STATIC, charSpacing: 2, margin: 0,
   });
-  const actFill = new Set(Object.keys(CLUSTERS).filter(k => CLUSTERS[k].actTMCWin));
-  drawWBMap(pptx, s, {
-    ox: 5.2, oy: 1.55, scale: 3.4,
-    fillSet: actFill,
-    showLabels: true, labelColor: STATIC, labelSize: 7,
+  s.addImage({
+    path: `${MAPS_DIR}/wb_actual_map.png`,
+    x: 5.75, y: 1.55, w: 3.30, h: 3.40,
+    sizing: { type: "contain", w: 3.30, h: 3.40 },
   });
   s.addText("Actual: TMC held 1 cluster · 84 seats", {
     x: 5.2, y: 5.05, w: 4.4, h: 0.22,
@@ -426,13 +425,11 @@ CLUSTER_ORDER.forEach((cid, idx) => {
   });
   s.addShape(pptx.ShapeType.line, { x: 0.5, y: 1.42, w: 9.0, h: 0, line: { color: STATIC, width: 0.5 } });
 
-  // LEFT — mini-map highlighting this cluster
-  drawWBMap(pptx, s, {
-    ox: 0.4, oy: 1.65, scale: 3.5,
-    fillSet: new Set(),
-    highlightCluster: cid,
-    dimOnly: true,
-    showLabels: true, labelColor: STATIC, labelSize: 6,
+  // LEFT — mini-map highlighting this cluster (real WB geography)
+  s.addImage({
+    path: `${MAPS_DIR}/wb_cluster_${cid}.png`,
+    x: 0.55, y: 1.65, w: 3.30, h: 3.40,
+    sizing: { type: "contain", w: 3.30, h: 3.40 },
   });
 
   // MIDDLE — numbers
